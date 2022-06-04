@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--android:layout_marginBottom="1dp"-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/enWordItemLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="horizontal"
+
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="10"
+        android:orientation="horizontal"
+        android:paddingVertical="8dp"
+        android:paddingLeft="8dp">
+
+        <LinearLayout
+            android:id="@+id/layoutClickToSeeDetail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textViewPartOfSpeech"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="cabaret"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/space_cadet"
+                android:background="@drawable/border_bottom"
+                />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="top"
+                    android:paddingTop="4dp"
+                    >
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginRight="4dp"
+                        android:src="@drawable/icons8_arrow_32px"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textViewMeaning"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="nghĩaaaaaaaaa"
+                    android:textColor="@color/steel_blue"
+                    android:textSize="16dp" />
+            </LinearLayout>
+
+        <include layout="@layout/recycler_view"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <!--            <item name="colorPrimary">@color/colorPrimary</item>-->
+        <!--            <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
+        <!--            <item name="colorAccent">@color/colorAccent</item>-->
+        <!--            <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>-->
+        <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
+        <item name="actionModeBackground">@color/design_default_color_primary</item>
+    </style>
+
+    <style name="CustomActivityAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/slide_out_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/slide_in_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
+    </style>
+
+    <style name="BottomSheetDialogTheme" parent="BaseBottomSheetDialog" />
+
+    <style name="BaseBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/bg_radius_top_25</item>
+    </style>
+
+    <style name="editTextInTranslateTextActivity" parent="Widget.AppCompat.EditText">
+        <item name="android:textColorHint">@color/steel_blue</item>
+        <item name="android:background">@color/cultured</item>
+        <item name="android:textColor">@color/space_cadet</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">top|start</item>
+        <item name="android:lines">8</item>
+        <item name="maxLines">10</item>
+        <item name="android:minLines">6</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="radioButtonStyle" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="buttonTint">@color/radio_button_color</item>
+        <item name="fontFamily">@font/roboto_regular</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/space_cadet</item>
+    </style>
+
+    <style name="Widget.Button.Toggle" parent="android:Widget">
+        <item name="android:background">@drawable/toggle_bg</item>
+    </style>
+
+    <style name="toggleButton" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:buttonStyleToggle">@style/Widget.Button.Toggle</item>
+        <item name="android:textColor">@drawable/toggle_text_color</item>
+    </style>
+
+    <style name="bottomNavItemStyleInactive" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16dp</item>
+        <item name="android:textColor">#999999</item>
+
+        <item name="android:background">@drawable/border_bottom_thick_999</item>
+
+    </style>
+
+    <style name="bottomNavItemStyleActive" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:background">@drawable/border_bottom_thick_fff</item>
+    </style>
+
+    <style name="mainButtonStyle" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:drawablePadding">10dp</item>
+        <item name="android:outlineProvider">background</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:textAlignment">textStart</item>
+        <item name="android:background">@drawable/bg_round_corner_5</item>
+        <item name="android:backgroundTint">@color/cultured</item>
+        <!--        <item name="android:background">@color/cultured</item>-->
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/space_cadet</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+    </style>
+
+    <style name="borderlessButton" parent="Widget.AppCompat.Button.Borderless"></style>
+
+    <style name="buttonWithTopIconInMainActivity" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:outlineProvider">background</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:backgroundTint">@color/cultured</item>
+        <item name="android:drawableTint">@color/cultured</item>
+        <item name="android:drawablePadding">0dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/cultured</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+    </style>
+
+    <style name="imageButtonInTranslateTextActivity" parent="Widget.AppCompat.ImageButton">
+        <item name="android:padding">10dp</item>
+        <item name="android:background">@drawable/bg_round_corner_5</item>
+        <item name="android:backgroundTint">@color/azureish_white</item>
+    </style>
+
+    <style name="buttonInTranslateTextActivity" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">@color/cultured</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:background">@drawable/bg_round_corner_5</item>
+        <item name="android:backgroundTint">@color/space_cadet</item>
+    </style>
+    <style name="buttonInAccountActivity" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">@color/cultured</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:background">@drawable/bg_space_cadet_radius_15</item>
+        <item name="android:backgroundTint">@color/space_cadet</item>
+    </style>
+
+
+    <style name="progressBarColor" parent="Widget.AppCompat.ProgressBar">
+        <item name="colorControlActivated">@color/steel_blue</item>
+    </style>
+
+    <style name="Widget.App.TabLayout" parent="Widget.MaterialComponents.TabLayout">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.TabLayout</item>
+        <!--        <item name="tabTextAppearance">@style/TextAppearance.App.Button</item>-->
+    </style>
+
+    <style name="ThemeOverlay.App.TabLayout" parent="">
+        <item name="colorPrimary">@color/cultured</item>
+        <item name="colorSurface">@color/steel_blue</item>
+        <item name="colorOnSurface">@color/azureish_white</item>
+    </style>
+
+    <style name="EditTextStyle" parent="@android:style/Widget.EditText">
+        <item name="android:background">@drawable/bg_azureich_white_radius_15</item>
+        <item name="android:textColor">@color/space_cadet</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:textColorHint">@color/steel_blue</item>
+        <item name="android:textCursorDrawable">@drawable/custom_cursor</item>
+        <item name="android:paddingHorizontal">20dp</item>
+        <item name="android:ems">10</item>
+        <item name="android:textAlignment">textStart</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+    </style>
+</resources>

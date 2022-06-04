@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.myapp">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        android:usesCleartextTraffic="true"
+        tools:ignore="ExtraText"
+        tools:replace="android:icon,android:theme">
+        <activity
+            android:name=".learnenglish.fragment.home.activity.listening.ListeningExerciseActivity"
+            android:exported="false"
+            android:parentActivityName=".learnenglish.fragment.home.activity.listening.ListeningTopicActivity"
+            android:theme="@style/Theme.TkActionBar" />
+        <activity
+            android:name=".learnenglish.fragment.home.activity.listening.ListeningTopicActivity"
+            android:exported="false"
+            android:parentActivityName=".learnenglish.LearnEnglishActivity"
+            android:theme="@style/Theme.TkActionBar" />
+        <activity
+            android:name=".learnenglish.fragment.home.activity.listening.ListeningActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".learnenglish.fragment.home.TestResultActivity"
+            android:exported="false" />
+        <activity
+            android:name=".dictionary.EnWordDetailActivity2"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:theme="@style/Theme.EnWordDetailActivity2" />
+        <activity
+            android:name=".NotificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ThongTinTaikhoanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".dictionary.DictionaryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.EnWordDetailActivity2" />
+
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="ocr" />
+
+        <activity
+            android:name=".dictionary.EnWordDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsExercisesActivity"
+            android:exported="false"
+            android:label="Unit 1"
+            android:parentActivityName=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsTopicsActivity"
+            android:theme="@style/Theme.TkActionBar" />
+        <activity
+            android:name=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsTopicsActivity"
+            android:exported="false"
+            android:label="Sắp xếp các từ thành câu"
+            android:parentActivityName=".learnenglish.LearnEnglishActivity"
+            android:theme="@style/Theme.TkActionBar" />
+        <activity
+            android:name=".learnenglish.fragment.home.EnglishMultichoiceTestActivity"
+            android:exported="false"
+            android:label="Đề thi trắc nghiệm"
+            android:parentActivityName=".learnenglish.LearnEnglishActivity"
+            android:theme="@style/Theme.TkActionBar" />
+        <activity
+            android:name=".learnenglish.fragment.home.EnglishMultichoiceTestActivity1"
+            android:exported="false"
+            android:label="Đề thi "
+            android:parentActivityName=".learnenglish.LearnEnglishActivity"
+            android:theme="@style/Theme.TkActionBar" />
+        <activity
+            android:name=".learnenglish.fragment.home.EnglishMultichoiceTestActivity2"
+            android:exported="false" />
+        <activity
+            android:name=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".learnenglish.LearnEnglishActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:parentActivityName=".Main"
+            android:taskAffinity=""
+            android:theme="@style/Theme.TkActionBar" />
+        <activity
+            android:name=".CropActivity"
+            android:exported="false"
+            android:label="Dịch hình ảnh"
+            android:theme="@style/Theme.CropActivity" />
+        <activity
+            android:name=".TranslateTextActivity"
+            android:exported="false"
+            android:label="Dịch văn bản"
+            android:theme="@style/Theme.TranslateTextActivity" />
+        <activity
+            android:name=".TranslationHistoryActivity"
+            android:exported="false"
+            android:label="Các bản dịch trước đó"
+            android:theme="@style/Theme.TranslationHistoryActivity" />
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:label="Cài đặt"
+            android:theme="@style/Theme.SettingsActivity" />
+        <activity
+            android:name=".SignUp"
+            android:exported="false" />
+        <activity
+            android:name=".SignInActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".learnenglish.fragment.ranking.RankingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Main"
+            android:exported="true"
+            android:theme="@style/Theme.Main">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.SplashActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SignIn"
+            android:exported="false" />
+        <activity
+            android:name=".dictionary.YourWordActivity"
+            android:exported="false"
+            android:label="Từ của bạn"
+            android:theme="@style/Theme.EnWordDetailActivity2" />
+        <activity
+            android:name=".OtpVerifyActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".OtpSendActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ChangePassword"
+            android:exported="false" />
+        <activity
+            android:name=".HistoryActivity"
+            android:exported="false"
+            android:label="Từ đã tra"
+            android:theme="@style/Theme.TranslationHistoryActivity" />
+
+        <receiver
+            android:name=".AlarmReceiver"
+            android:enabled="true"
+            android:exported="true" />
+    </application>
+
+</manifest>

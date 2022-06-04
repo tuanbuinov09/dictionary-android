@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".dictionary.fragment.YourNoteFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bright_gray"
+        android:orientation="vertical"
+        android:padding="5dp">
+
+        <EditText
+            android:id="@+id/etYourNote"
+            style="@style/editTextInTranslateTextActivity"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_weight="0"
+            android:background="@color/cultured"
+            android:backgroundTint="@color/cultured"
+            android:hint="Nhập ghi chú" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnSaveNote"
+                style="@style/borderlessButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_round_corner_5"
+                android:fontFamily="@font/roboto_regular"
+                android:text="Lưu"
+                android:textColor="@color/cultured"
+                app:backgroundTint="@color/space_cadet" />
+
+            <Button
+                android:id="@+id/btnClearNote"
+                style="@style/borderlessButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_round_corner_5"
+                android:fontFamily="@font/roboto_regular"
+                android:text="Xóa"
+                android:textColor="@color/space_cadet"
+                app:backgroundTint="@color/azureish_white" />
+        </LinearLayout>
+
+    </LinearLayout>
+</FrameLayout>
