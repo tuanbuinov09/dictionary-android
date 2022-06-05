@@ -16,7 +16,6 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.myapp.dictionary.EnWordDetailActivity2;
 import com.myapp.dtbassethelper.DatabaseAccess;
-import com.myapp.learnenglish.LearnEnglishActivity;
 import com.myapp.model.EnWord;
 import com.myapp.model.Meaning;
 
@@ -86,30 +85,30 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     private void notificationStudy(Context context) {
-        Intent notifyIntent = new Intent(context, LearnEnglishActivity.class);
-        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent notifyPendingIntent = PendingIntent.getActivity(
-                context, getNotificationId(), notifyIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        Notification notification = new NotificationCompat.Builder(context, CHANNEL_2)
-                .setStyle(new NotificationCompat.BigTextStyle())
-                .setColor(context.getColor(R.color.space_cadet))
-                .setContentTitle("Học tiếng Anh thôi!")
-                .setContentText("Tiếp tục cải thiện thành tích và rèn luyên của chính mình")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setVibrate(new long[]{100, 1000, 200, 340})
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setAutoCancel(true)
-                .setGroup(GROUP_1)
-                .setContentIntent(notifyPendingIntent)
-                .setDefaults(NotificationCompat.DEFAULT_ALL)
-                .setTicker("Notification")
-                .build();
-
-        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
-        notificationManagerCompat.notify(getNotificationId(), notification);
+//        Intent notifyIntent = new Intent(context, LearnEnglishActivity.class);
+//        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        PendingIntent notifyPendingIntent = PendingIntent.getActivity(
+//                context, getNotificationId(), notifyIntent,
+//                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+//        );
+//
+//        Notification notification = new NotificationCompat.Builder(context, CHANNEL_2)
+//                .setStyle(new NotificationCompat.BigTextStyle())
+//                .setColor(context.getColor(R.color.space_cadet))
+//                .setContentTitle("Học tiếng Anh thôi!")
+//                .setContentText("Tiếp tục cải thiện thành tích và rèn luyên của chính mình")
+//                .setPriority(NotificationCompat.PRIORITY_HIGH)
+//                .setVibrate(new long[]{100, 1000, 200, 340})
+//                .setSmallIcon(R.drawable.ic_launcher_foreground)
+//                .setAutoCancel(true)
+//                .setGroup(GROUP_1)
+//                .setContentIntent(notifyPendingIntent)
+//                .setDefaults(NotificationCompat.DEFAULT_ALL)
+//                .setTicker("Notification")
+//                .build();
+//
+//        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+//        notificationManagerCompat.notify(getNotificationId(), notification);
     }
 
     private void notificationWord(Context context) {
