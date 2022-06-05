@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".dictionary.Product_DictionaryActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:background="@color/white"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.smarteist.autoimageslider.SliderView
+                android:id="@+id/image_slider"
+                android:layout_width="match_parent"
+                android:layout_height="360dp"
+                app:sliderAnimationDuration="700"
+                app:sliderAutoCycleDirection="back_and_forth"
+                app:sliderAutoCycleEnabled="true"
+                app:sliderIndicatorAnimationDuration="700"
+                app:sliderIndicatorGravity="center_horizontal|bottom"
+                app:sliderIndicatorMargin="12dp"
+                app:sliderIndicatorPadding="4dp"
+                app:sliderIndicatorRadius="2dp"
+                app:sliderIndicatorSelectedColor="#034A83"
+                app:sliderIndicatorUnselectedColor="#333"
+                app:sliderScrollTimeInSec="2"
+                app:sliderStartAutoCycle="true" />
+        </RelativeLayout>
+
+
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:textSize="28sp"
+    android:textStyle="bold"
+    android:textColor="#333"
+    android:text="Từ điển T11"
+    />
+    </LinearLayout>
+</LinearLayout>

@@ -31,9 +31,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.myapp.adapter.EnWordRecyclerAdapter;
 import com.myapp.dictionary.DictionaryActivity;
+import com.myapp.dictionary.Product_DictionaryActivity;
 import com.myapp.dictionary.YourWordActivity;
 import com.myapp.dtbassethelper.DatabaseAccess;
-import com.myapp.learnenglish.LearnEnglishActivity;
 import com.myapp.model.EnWord;
 import com.myapp.model.Settings;
 import com.myapp.utils.ChangeSearchView;
@@ -48,7 +48,7 @@ import java.util.ArrayList;
 public class Main extends AppCompatActivity {
 
     private Button buttonLearnEnglish, btnToAllWord, btnToYourWord, buttonTranslateText, buttonSettings, buttonAccount,
-            buttonTranslateCamera, buttonTranslateImage, buttonHistory;
+            buttonTranslateCamera, buttonTranslateImage, buttonHistory, buttonProductDictionary;
     ImageButton btnMic;
 
     FloatingActionButton fab;
@@ -151,12 +151,12 @@ public class Main extends AppCompatActivity {
     }
 
     private void setEvent() {
-        buttonLearnEnglish.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                handleClickLearnEnglish(view);
-            }
-        });
+//        buttonLearnEnglish.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                handleClickLearnEnglish(view);
+//            }
+//        });
 
         btnToAllWord.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -278,6 +278,12 @@ public class Main extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        buttonProductDictionary.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleButtonProductDictionary(v);
+            }
+        });
     }
 
     private void fetchData() {
@@ -353,7 +359,7 @@ public class Main extends AppCompatActivity {
 //        Query query = savedWordRef.whereEqualTo("user_id", GlobalVariables.userId);
 
         getSavedWordOfUser();
-        buttonLearnEnglish = findViewById(R.id.buttonLearnEnglish);
+//        buttonLearnEnglish = findViewById(R.id.buttonLearnEnglish);
         btnToAllWord = findViewById(R.id.btnToAllWord);
         btnToYourWord = findViewById(R.id.buttonToYourWord);
         buttonTranslateText = findViewById(R.id.buttonTranslateText);
@@ -367,7 +373,7 @@ public class Main extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         btnMic = findViewById(R.id.btnMic);
         buttonHistory = findViewById(R.id.buttonHistory);
-
+        buttonProductDictionary = findViewById(R.id.buttonProductDictionary);
         //default, k có từ nào trong adapter
 
 
@@ -434,15 +440,15 @@ public class Main extends AppCompatActivity {
     }
 
     private void nextActivityLearnEnglish() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            //Chưa login
-            Intent intent = new Intent(this, SignInActivity.class);
-            startActivity(intent);
-        } else {
-            Intent intent = new Intent(this, LearnEnglishActivity.class);
-            startActivity(intent);
-        }
+//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//        if (user == null) {
+//            //Chưa login
+//            Intent intent = new Intent(this, SignInActivity.class);
+//            startActivity(intent);
+//        } else {
+//            Intent intent = new Intent(this, LearnEnglishActivity.class);
+//            startActivity(intent);
+//        }
     }
 
     public void handleYourWordClick(View view) {
@@ -480,7 +486,10 @@ public class Main extends AppCompatActivity {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
-
+    public void handleButtonProductDictionary(View view){
+        Intent intent = new Intent(this, Product_DictionaryActivity.class);
+        startActivity(intent);
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();

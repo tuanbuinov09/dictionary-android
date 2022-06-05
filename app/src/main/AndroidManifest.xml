@@ -16,7 +16,6 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -29,24 +28,27 @@
         tools:ignore="ExtraText"
         tools:replace="android:icon,android:theme">
         <activity
-            android:name=".learnenglish.fragment.home.activity.listening.ListeningExerciseActivity"
-            android:exported="false"
-            android:parentActivityName=".learnenglish.fragment.home.activity.listening.ListeningTopicActivity"
-            android:theme="@style/Theme.TkActionBar" />
-        <activity
-            android:name=".learnenglish.fragment.home.activity.listening.ListeningTopicActivity"
-            android:exported="false"
-            android:parentActivityName=".learnenglish.LearnEnglishActivity"
-            android:theme="@style/Theme.TkActionBar" />
-        <activity
-            android:name=".learnenglish.fragment.home.activity.listening.ListeningActivity"
+            android:name=".dictionary.Product_DictionaryActivity"
             android:exported="false" />
-        <activity
-            android:name=".ProfileActivity"
-            android:exported="false" />
-        <activity
-            android:name=".learnenglish.fragment.home.TestResultActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".learnenglish.fragment.home.activity.listening.ListeningExerciseActivity"-->
+<!--            android:exported="false"-->
+<!--            android:parentActivityName=".learnenglish.fragment.home.activity.listening.ListeningTopicActivity"-->
+<!--            android:theme="@style/Theme.TkActionBar" />-->
+<!--        <activity-->
+<!--            android:name=".learnenglish.fragment.home.activity.listening.ListeningTopicActivity"-->
+<!--            android:exported="false"-->
+<!--            android:parentActivityName=".learnenglish.LearnEnglishActivity"-->
+<!--            android:theme="@style/Theme.TkActionBar" />-->
+<!--        <activity-->
+<!--            android:name=".learnenglish.fragment.home.activity.listening.ListeningActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".ProfileActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".learnenglish.fragment.home.TestResultActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".dictionary.EnWordDetailActivity2"
             android:excludeFromRecents="true"
@@ -72,44 +74,44 @@
         <activity
             android:name=".dictionary.EnWordDetailActivity"
             android:exported="false" />
-        <activity
-            android:name=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsExercisesActivity"
-            android:exported="false"
-            android:label="Unit 1"
-            android:parentActivityName=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsTopicsActivity"
-            android:theme="@style/Theme.TkActionBar" />
-        <activity
-            android:name=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsTopicsActivity"
-            android:exported="false"
-            android:label="Sắp xếp các từ thành câu"
-            android:parentActivityName=".learnenglish.LearnEnglishActivity"
-            android:theme="@style/Theme.TkActionBar" />
-        <activity
-            android:name=".learnenglish.fragment.home.EnglishMultichoiceTestActivity"
-            android:exported="false"
-            android:label="Đề thi trắc nghiệm"
-            android:parentActivityName=".learnenglish.LearnEnglishActivity"
-            android:theme="@style/Theme.TkActionBar" />
-        <activity
-            android:name=".learnenglish.fragment.home.EnglishMultichoiceTestActivity1"
-            android:exported="false"
-            android:label="Đề thi "
-            android:parentActivityName=".learnenglish.LearnEnglishActivity"
-            android:theme="@style/Theme.TkActionBar" />
-        <activity
-            android:name=".learnenglish.fragment.home.EnglishMultichoiceTestActivity2"
-            android:exported="false" />
-        <activity
-            android:name=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".learnenglish.LearnEnglishActivity"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:launchMode="singleTask"
-            android:parentActivityName=".Main"
-            android:taskAffinity=""
-            android:theme="@style/Theme.TkActionBar" />
+<!--        <activity-->
+<!--            android:name=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsExercisesActivity"-->
+<!--            android:exported="false"-->
+<!--            android:label="Unit 1"-->
+<!--            android:parentActivityName=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsTopicsActivity"-->
+<!--            android:theme="@style/Theme.TkActionBar" />-->
+<!--        <activity-->
+<!--            android:name=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsTopicsActivity"-->
+<!--            android:exported="false"-->
+<!--            android:label="Sắp xếp các từ thành câu"-->
+<!--            android:parentActivityName=".learnenglish.LearnEnglishActivity"-->
+<!--            android:theme="@style/Theme.TkActionBar" />-->
+<!--        <activity-->
+<!--            android:name=".learnenglish.fragment.home.EnglishMultichoiceTestActivity"-->
+<!--            android:exported="false"-->
+<!--            android:label="Đề thi trắc nghiệm"-->
+<!--            android:parentActivityName=".learnenglish.LearnEnglishActivity"-->
+<!--            android:theme="@style/Theme.TkActionBar" />-->
+<!--        <activity-->
+<!--            android:name=".learnenglish.fragment.home.EnglishMultichoiceTestActivity1"-->
+<!--            android:exported="false"-->
+<!--            android:label="Đề thi "-->
+<!--            android:parentActivityName=".learnenglish.LearnEnglishActivity"-->
+<!--            android:theme="@style/Theme.TkActionBar" />-->
+<!--        <activity-->
+<!--            android:name=".learnenglish.fragment.home.EnglishMultichoiceTestActivity2"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".learnenglish.fragment.home.activity.arrangewords.ArrangeWordsActivity"-->
+<!--            android:exported="false" />-->
+<!--        <activity-->
+<!--            android:name=".learnenglish.LearnEnglishActivity"-->
+<!--            android:excludeFromRecents="true"-->
+<!--            android:exported="false"-->
+<!--            android:launchMode="singleTask"-->
+<!--            android:parentActivityName=".Main"-->
+<!--            android:taskAffinity=""-->
+<!--            android:theme="@style/Theme.TkActionBar" />-->
         <activity
             android:name=".CropActivity"
             android:exported="false"
@@ -139,9 +141,9 @@
         <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
-        <activity
-            android:name=".learnenglish.fragment.ranking.RankingActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".learnenglish.fragment.ranking.RankingActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".SignUpActivity"
             android:exported="false" />

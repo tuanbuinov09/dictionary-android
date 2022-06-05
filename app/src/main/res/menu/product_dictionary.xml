@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_chat"
+        android:icon="@drawable/icons8_chat_messages_32px"
+        android:title="Nhắn tin cho T11Dict"
+        app:iconTint="@color/cultured"
+        app:showAsAction="always" />
+</menu>

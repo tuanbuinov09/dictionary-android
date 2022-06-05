@@ -102,22 +102,13 @@
             android:drawableLeft="@drawable/icons8_wordbook_32px"
             android:text="Từ điển Anh-Việt" />
 
-<!--        <Button-->
-<!--            style="@style/mainButtonStyle"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:drawableStart="@drawable/icons8_rounded_rectangle_stroked_32px"-->
-<!--            android:drawableLeft="@drawable/icons8_rounded_rectangle_stroked_32px"-->
-<!--            android:text="Cửa sổ tra nhanh" />-->
-
-        <Button
-            android:id="@+id/buttonLearnEnglish"
-            style="@style/mainButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/icons8_learning_32px_1"
-            android:drawableLeft="@drawable/icons8_learning_32px_1"
-            android:text="Học tiếng anh" />
+        <!--        <Button-->
+        <!--            style="@style/mainButtonStyle"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:drawableStart="@drawable/icons8_rounded_rectangle_stroked_32px"-->
+        <!--            android:drawableLeft="@drawable/icons8_rounded_rectangle_stroked_32px"-->
+        <!--            android:text="Cửa sổ tra nhanh" />-->
 
         <Button
             android:id="@+id/buttonTranslateText"
@@ -165,13 +156,13 @@
             android:drawableLeft="@drawable/icons8_time_machine_32px"
             android:text="Từ đã tra" />
 
-<!--        <Button-->
-<!--            style="@style/mainButtonStyle"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:drawableStart="@drawable/icons8_view_details_32px"-->
-<!--            android:drawableLeft="@drawable/icons8_view_details_32px"-->
-<!--            android:text="Từ vựng quan trọng" />-->
+        <!--        <Button-->
+        <!--            style="@style/mainButtonStyle"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:drawableStart="@drawable/icons8_view_details_32px"-->
+        <!--            android:drawableLeft="@drawable/icons8_view_details_32px"-->
+        <!--            android:text="Từ vựng quan trọng" />-->
 
         <Button
             android:id="@+id/buttonSettings"
@@ -181,6 +172,15 @@
             android:drawableStart="@drawable/icons8_settings_32px"
             android:drawableLeft="@drawable/icons8_settings_32px"
             android:text="Cài đặt" />
+
+        <Button
+            android:id="@+id/buttonProductDictionary"
+            style="@style/mainButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/icons8_money_32px"
+            android:drawableLeft="@drawable/icons8_money_32px"
+            android:text="Đặt mua từ điển T11" />
 
 
     </LinearLayout>
