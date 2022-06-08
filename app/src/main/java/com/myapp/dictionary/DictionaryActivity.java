@@ -43,7 +43,7 @@ public class DictionaryActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
     ArrayList<EnWord> filteredlist = new ArrayList<>();
-
+    ArrayList<EnWord> justFetched = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,11 +92,15 @@ public class DictionaryActivity extends AppCompatActivity {
             enWordRecyclerAdapter.filterList(GlobalVariables.listAllWords);
             return;
         }
-        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-        databaseAccess.open();
-        GlobalVariables.listFilteredWords.removeAll(GlobalVariables.listFilteredWords);
-        GlobalVariables.listFilteredWords = databaseAccess.searchEnWord_NoPopulateWithOffsetLimit(text, GlobalVariables.offset, GlobalVariables.limit);
-        databaseAccess.close();
+//        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
+//        databaseAccess.open();
+//        GlobalVariables.listFilteredWords.removeAll(GlobalVariables.listFilteredWords);
+//        GlobalVariables.listFilteredWords = databaseAccess.searchEnWord_NoPopulateWithOffsetLimit(text, GlobalVariables.offset, GlobalVariables.limit);
+//        databaseAccess.close();
+        GlobalVariables.listFilteredWords.clear();
+        getNextChunkOfWord(text, GlobalVariables.offset, GlobalVariables.limit);
+//        GlobalVariables.listFilteredWords.addAll(justFetched);
+//        enWordRecyclerAdapter.notifyDataSetChanged();
 
         if (GlobalVariables.listFilteredWords.isEmpty()) {
             Toast.makeText(this, "No Data Found..", Toast.LENGTH_SHORT).show();
@@ -202,28 +206,33 @@ public class DictionaryActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (!searchInput.getQuery().toString().trim().equalsIgnoreCase("")) {
-                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-                    databaseAccess.open();
+//                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
+//                    databaseAccess.open();
+//                    GlobalVariables.offset = GlobalVariables.offset + GlobalVariables.limit;
+//
+//                    ArrayList<EnWord> justFetched = databaseAccess.searchEnWord_NoPopulateWithOffsetLimit(searchInput.getQuery().toString().trim(), GlobalVariables.offset, GlobalVariables.limit);
+//
+//                    databaseAccess.close();
+//
+//                    GlobalVariables.listFilteredWords.addAll(justFetched);
+//                    enWordRecyclerAdapter.filterList(GlobalVariables.listFilteredWords);
+
                     GlobalVariables.offset = GlobalVariables.offset + GlobalVariables.limit;
-
-                    ArrayList<EnWord> justFetched = databaseAccess.searchEnWord_NoPopulateWithOffsetLimit(searchInput.getQuery().toString().trim(), GlobalVariables.offset, GlobalVariables.limit);
-
-                    databaseAccess.close();
-
+                    getNextChunkOfWord(searchInput.getQuery().toString().trim(), GlobalVariables.offset, GlobalVariables.limit);
                     GlobalVariables.listFilteredWords.addAll(justFetched);
-                    enWordRecyclerAdapter.filterList(GlobalVariables.listFilteredWords);
-
+                    enWordRecyclerAdapter.notifyDataSetChanged();
                     progressBar.setVisibility(View.GONE);
                     return;
                 }
-                DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-                databaseAccess.open();
+////                DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
+////                databaseAccess.open();
+//                GlobalVariables.offset = GlobalVariables.offset + GlobalVariables.limit;
+//
+////                ArrayList<EnWord> justFetched = databaseAccess.getAllEnWord_NoPopulateWithOffsetLimit(GlobalVariables.offset, GlobalVariables.limit);
+//
+////                databaseAccess.close();
                 GlobalVariables.offset = GlobalVariables.offset + GlobalVariables.limit;
-
-                ArrayList<EnWord> justFetched = databaseAccess.getAllEnWord_NoPopulateWithOffsetLimit(GlobalVariables.offset, GlobalVariables.limit);
-
-                databaseAccess.close();
-
+                getNextChunkOfWord(GlobalVariables.offset, GlobalVariables.limit);
                 GlobalVariables.listAllWords.addAll(justFetched);
                 enWordRecyclerAdapter.notifyDataSetChanged();
 
@@ -240,6 +249,44 @@ public class DictionaryActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONArray response) {
                 getData(response);
+            }
+        }, new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(DictionaryActivity.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(DictionaryActivity.this);
+        requestQueue.add(request);
+    }
+    private void getNextChunkOfWord(int offset, int limit) {
+
+        String url = "http://10.0.2.2:8000/enwords?offset="+offset+"&limit="+limit;
+        System.out.println("---------------------------------------------------"+url);
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                getDataJustFetchedWords(response);
+            }
+        }, new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(DictionaryActivity.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(DictionaryActivity.this);
+        requestQueue.add(request);
+    }
+    private void getNextChunkOfWord(String query, int offset, int limit) {
+
+        String url = "http://10.0.2.2:8000/enwords/search?query="+query+"&offset="+offset+"&limit="+limit;
+        System.out.println("---------------------------------------------------"+url);
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                getDataJustFetchedWords(response);
             }
         }, new Response.ErrorListener(){
             @Override
@@ -312,12 +359,80 @@ public class DictionaryActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    private void getDataJustFetchedWords(JSONArray array) {
+        try{
+            this.justFetched.clear();
+//            JSONArray array = response;
+            for(int i=0; i<array.length(); i=i+1){
+                JSONObject object = array.getJSONObject(i);
+
+                EnWord enWord = new EnWord();
+                enWord.setWord(object.getString("word"));
+                enWord.setId(object.getInt("id"));
+                enWord.setViews(object.getInt("views"));
+                enWord.setPronunciation(object.getString("pronunciation"));
+
+                JSONArray meaningArray = object.getJSONArray("meanings");
+                ArrayList<Meaning> listMeaning = new ArrayList<>();
+
+                for(int j=0; j<meaningArray.length(); j=j+1) {
+                    JSONObject objectMeaning = meaningArray.getJSONObject(j);
+                    JSONObject objectPartOfSpeech = objectMeaning.getJSONObject("partOfSpeech");
+                    Meaning meaning = new Meaning();
+
+                    meaning.setMeaning(objectMeaning.getString("meaning"));
+                    meaning.setId(objectMeaning.getInt("id"));
+                    meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
+
+                    // bắst trường hợp k có example
+                    JSONArray exampleArray = new JSONArray();
+                    ArrayList<ExampleDetail> listExample = new ArrayList<>();
+                    try{
+                        exampleArray = objectMeaning.getJSONArray("examples");
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+                    for(int k=0; k<exampleArray.length(); k=k+1) {
+                        JSONObject exampleObject = exampleArray.getJSONObject(k);
+                        ExampleDetail exampleDetail = new ExampleDetail();
+                        exampleDetail.setId(exampleObject.getInt("id"));
+                        exampleDetail.setMeaningId(exampleObject.getInt("meaningId"));
+                        exampleDetail.setExample(exampleObject.getString("example"));
+                        exampleDetail.setExampleMeaning(exampleObject.getString("exampleMeaning"));
+
+                        listExample.add(exampleDetail);
+                    }
+
+                    meaning.setListExampleDetails(listExample);
+
+                    listMeaning.add(meaning);
+                }
+
+                enWord.setListMeaning(listMeaning);
+                this.justFetched.add(enWord);
+
+
+            }
+            for(EnWord en : this.justFetched){
+                System.out.println("----"+en.toString());
+            }
+            if(!searchInput.getQuery().toString().isEmpty()){
+                GlobalVariables.listFilteredWords.addAll(justFetched);
+                enWordRecyclerAdapter.notifyDataSetChanged();
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+
     public void setUpRecyclerViewYourWord(){
         enWordRecyclerAdapter = new EnWordRecyclerAdapter(this, GlobalVariables.listAllWords);
         recyclerView.setAdapter(enWordRecyclerAdapter);
         manager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(manager);
     }
+
     @Override
     public boolean onSupportNavigateUp() {
         finish();
