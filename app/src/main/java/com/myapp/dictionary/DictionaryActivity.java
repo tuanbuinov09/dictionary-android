@@ -13,11 +13,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 import com.myapp.GlobalVariables;
 import com.myapp.R;
 import com.myapp.adapter.EnWordRecyclerAdapter;
 import com.myapp.dtbassethelper.DatabaseAccess;
 import com.myapp.model.EnWord;
+import com.myapp.model.ExampleDetail;
+import com.myapp.model.Meaning;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -103,22 +115,23 @@ public class DictionaryActivity extends AppCompatActivity {
         searchInput = findViewById(R.id.searchInput);
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progress_bar);
-        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-        databaseAccess.open();
-
-//        list =  databaseAccess.getAllEnWord_NoPopulate();
-        GlobalVariables.listAllWords = databaseAccess.getAllEnWord_NoPopulateWithOffsetLimit(GlobalVariables.offset, GlobalVariables.limit);
-        databaseAccess.close();
+//        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
+//        databaseAccess.open();
+//
+////        list =  databaseAccess.getAllEnWord_NoPopulate();
+//        GlobalVariables.listAllWords = databaseAccess.getAllEnWord_NoPopulateWithOffsetLimit(GlobalVariables.offset, GlobalVariables.limit);
+//        databaseAccess.close();
+        this.getWord(GlobalVariables.offset, GlobalVariables.limit);
         System.out.println("-------------" + GlobalVariables.listAllWords.size());
 
-        enWordRecyclerAdapter = new EnWordRecyclerAdapter(this, GlobalVariables.listAllWords);
-        recyclerView.setAdapter(enWordRecyclerAdapter);
-        manager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(manager);
 //        enWordRecyclerAdapter = new EnWordRecyclerAdapter(this, GlobalVariables.listAllWords);
 //        recyclerView.setAdapter(enWordRecyclerAdapter);
 //        manager = new LinearLayoutManager(this);
 //        recyclerView.setLayoutManager(manager);
+////        enWordRecyclerAdapter = new EnWordRecyclerAdapter(this, GlobalVariables.listAllWords);
+////        recyclerView.setAdapter(enWordRecyclerAdapter);
+////        manager = new LinearLayoutManager(this);
+////        recyclerView.setLayoutManager(manager);
     }
 
     private void setEvent() {
@@ -175,7 +188,12 @@ public class DictionaryActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         //để khi lưu hay bỏ lưu ở word detail thì cái nàfy đc cậpj nhật
-        enWordRecyclerAdapter.notifyDataSetChanged();
+        try{
+            enWordRecyclerAdapter.notifyDataSetChanged();
+
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     private void fetchData() {
@@ -214,7 +232,92 @@ public class DictionaryActivity extends AppCompatActivity {
             }
         }, 3000);
     }
+    private void getWord(int offset, int limit) {
 
+        String url = "http://10.0.2.2:8000/enwords?offset="+offset+"&limit="+limit;
+        System.out.println("---------------------------------------------------"+url);
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                getData(response);
+            }
+        }, new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(DictionaryActivity.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(DictionaryActivity.this);
+        requestQueue.add(request);
+    }
+    private void getData(JSONArray array) {
+        try{
+            GlobalVariables.listAllWords.clear();
+//            JSONArray array = response;
+            for(int i=0; i<array.length(); i=i+1){
+                JSONObject object = array.getJSONObject(i);
+
+                EnWord enWord = new EnWord();
+                enWord.setWord(object.getString("word"));
+                enWord.setId(object.getInt("id"));
+                enWord.setViews(object.getInt("views"));
+                enWord.setPronunciation(object.getString("pronunciation"));
+
+                JSONArray meaningArray = object.getJSONArray("meanings");
+                ArrayList<Meaning> listMeaning = new ArrayList<>();
+
+                for(int j=0; j<meaningArray.length(); j=j+1) {
+                    JSONObject objectMeaning = meaningArray.getJSONObject(j);
+                    JSONObject objectPartOfSpeech = objectMeaning.getJSONObject("partOfSpeech");
+                    Meaning meaning = new Meaning();
+
+                    meaning.setMeaning(objectMeaning.getString("meaning"));
+                    meaning.setId(objectMeaning.getInt("id"));
+                    meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
+
+                    // bắst trường hợp k có example
+                    JSONArray exampleArray = new JSONArray();
+                    ArrayList<ExampleDetail> listExample = new ArrayList<>();
+                    try{
+                        exampleArray = objectMeaning.getJSONArray("examples");
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+                    for(int k=0; k<exampleArray.length(); k=k+1) {
+                        JSONObject exampleObject = exampleArray.getJSONObject(k);
+                        ExampleDetail exampleDetail = new ExampleDetail();
+                        exampleDetail.setId(exampleObject.getInt("id"));
+                        exampleDetail.setMeaningId(exampleObject.getInt("meaningId"));
+                        exampleDetail.setExample(exampleObject.getString("example"));
+                        exampleDetail.setExampleMeaning(exampleObject.getString("exampleMeaning"));
+
+                        listExample.add(exampleDetail);
+                    }
+
+                    meaning.setListExampleDetails(listExample);
+
+                    listMeaning.add(meaning);
+                }
+
+                enWord.setListMeaning(listMeaning);
+                GlobalVariables.listAllWords.add(enWord);
+            }
+            for(EnWord en : GlobalVariables.listAllWords){
+                System.out.println("----"+en.toString());
+            }
+            // vì gọi api chạy ngầm nên ph để set adapter ở đây để set sau khi chạy api xong
+            setUpRecyclerViewYourWord();
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+    public void setUpRecyclerViewYourWord(){
+        enWordRecyclerAdapter = new EnWordRecyclerAdapter(this, GlobalVariables.listAllWords);
+        recyclerView.setAdapter(enWordRecyclerAdapter);
+        manager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(manager);
+    }
     @Override
     public boolean onSupportNavigateUp() {
         finish();
