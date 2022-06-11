@@ -25,6 +25,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,6 +47,9 @@ import com.myapp.utils.FileIO;
 import com.myapp.utils.FileIO2;
 import com.myapp.utils.FileIO3;
 import com.myapp.utils.SoftKeyboard;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -120,13 +129,13 @@ public class Main extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-        databaseAccess.open();
-        GlobalVariables.userId = databaseAccess.getCurrentUserId__OFFLINE();
-        databaseAccess.close();
-
-        getSavedWordOfUser();
+//
+//        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
+//        databaseAccess.open();
+//        GlobalVariables.userId = databaseAccess.getCurrentUserId__OFFLINE();
+//        databaseAccess.close();
+getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
+//        getSavedWordOfUser();
         checkFAB();
 
 //        try{
@@ -388,25 +397,54 @@ public class Main extends AppCompatActivity {
 //
 //        }
 
-        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-        databaseAccess.open();
-        GlobalVariables.userId = databaseAccess.getCurrentUserId__OFFLINE();
-        databaseAccess.close();
-    }
+//        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
+//        databaseAccess.open();
+//        GlobalVariables.userId = databaseAccess.getCurrentUserId__OFFLINE();
+//        databaseAccess.close();
+//
 
+        //them vao de test cac chuc nang can dang nhap
+        GlobalVariables.userId = "1";
+        getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
+    }
+public void getAllSavedWordIdOfUser(int userId){
+    String url = "http://10.0.2.2:8000/savedword-id/"+userId;
+    System.out.println("---------------------------------------------------"+url);
+    JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+        @Override
+        public void onResponse(JSONArray response) {
+            getResponseData(response);
+        }
+    }, new Response.ErrorListener(){
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Toast.makeText(Main.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+        }
+    });
+
+    RequestQueue requestQueue = Volley.newRequestQueue(Main.this);
+    requestQueue.add(request);
+
+}
+void getResponseData(JSONArray response){
+        System.out.println(response);
+        GlobalVariables.listSavedWordId.clear();
+        try {
+            for(int i=0; i<response.length(); i++){
+
+                GlobalVariables.listSavedWordId.add(Integer.parseInt(response.getString(i)));
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+
+}
     public void search(View view) {
         Toast.makeText(this, "bạn vừa tìm: " + searchInput.getQuery().toString().trim(), Toast.LENGTH_LONG).show();
     }
 
     public void toAccount(View view) {
-//        if (GlobalVariables.username == null) {
-//            // go to sign in
-////            Intent signInIntent = new Intent(this, SignIn.class);
-////            Intent signInIntent = new Intent(this, SignInActivity.class);
-////            startActivity(signInIntent);
-//        } else {
-//            Toast.makeText(this, "đăng nhập thành công", Toast.LENGTH_LONG).show();
-//        }
+
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -414,16 +452,6 @@ public class Main extends AppCompatActivity {
                 nextActivity();
             }
         }, 1000);
-
-//        FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
-//        if(user==null){
-//            //Chưa login
-//            Intent intent = new Intent(this,SignInActivity.class);
-//            startActivity(intent);
-//        }else{
-//            Intent intent = new Intent(this,ThongTinTaikhoanActivity.class);
-//            startActivity(intent);
-//        }
 
     }
 
@@ -466,8 +494,6 @@ public class Main extends AppCompatActivity {
     }
 
     private void handleClickLearnEnglish(View view) {
-//        Intent intent = new Intent(this, LearnEnglishActivity.class);
-//        startActivity(intent);
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -496,41 +522,41 @@ public class Main extends AppCompatActivity {
     }
 
     public void getSavedWordOfUser() {
-        boolean connected = false;
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
-                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
-            //we are connected to a network
-            connected = true;
-        } else {
-            connected = false;
-        }
-
-        if (true) {//if(connected==false)
-            DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-            databaseAccess.open();
-            GlobalVariables.listSavedWordId.clear();
-            GlobalVariables.listSavedWordId = databaseAccess.getListSavedWordIdFromSQLite(GlobalVariables.userId);
-            databaseAccess.close();
-        }/*else{
-            GlobalVariables.db.collection("saved_word").whereEqualTo("user_id", GlobalVariables.userId).get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            GlobalVariables.listSavedWordId.clear();
-                            for (DocumentSnapshot snapshot : task.getResult()) {
-                                long wordId1 = snapshot.getLong("word_id");
-                                int wordId = (int) wordId1;
-                                GlobalVariables.listSavedWordId.add(wordId);
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(Main.this, "Oops ... something went wrong", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }*/
+//        boolean connected = false;
+//        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//        if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+//                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+//            //we are connected to a network
+//            connected = true;
+//        } else {
+//            connected = false;
+//        }
+//
+//        if (true) {//if(connected==false)
+//            DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
+//            databaseAccess.open();
+//            GlobalVariables.listSavedWordId.clear();
+//            GlobalVariables.listSavedWordId = databaseAccess.getListSavedWordIdFromSQLite(GlobalVariables.userId);
+//            databaseAccess.close();
+//        }/*else{
+//            GlobalVariables.db.collection("saved_word").whereEqualTo("user_id", GlobalVariables.userId).get()
+//                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                            GlobalVariables.listSavedWordId.clear();
+//                            for (DocumentSnapshot snapshot : task.getResult()) {
+//                                long wordId1 = snapshot.getLong("word_id");
+//                                int wordId = (int) wordId1;
+//                                GlobalVariables.listSavedWordId.add(wordId);
+//                            }
+//                        }
+//                    }).addOnFailureListener(new OnFailureListener() {
+//                @Override
+//                public void onFailure(@NonNull Exception e) {
+//                    Toast.makeText(Main.this, "Oops ... something went wrong", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        }*/
     }
 
     private void checkFAB() {

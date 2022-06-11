@@ -90,8 +90,7 @@ public class YourWordActivity extends AppCompatActivity {
     }
 
     public void setYourWordAdapter() {
-
-        //---------------
+        //
 //        YourWordAdapter adapter = new
 //                YourWordAdapter(this, this.listEnWord, R.layout.en_word_item);
 //        listViewYourWord.setAdapter(adapter);
@@ -109,10 +108,6 @@ public class YourWordActivity extends AppCompatActivity {
 //                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
 //            }
 //        });
-//
-//        for(EnWord en : listEnWord){
-//            System.out.println("----"+en.toString());
-//        }
     }
 
     private void filter(String text) {
@@ -220,7 +215,6 @@ public class YourWordActivity extends AppCompatActivity {
 //                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
 //            }
 //        });
-
 //    }
 
     private void setControl() {

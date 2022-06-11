@@ -2,23 +2,45 @@ package com.myapp.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 import com.myapp.GlobalVariables;
 import com.myapp.R;
+import com.myapp.model.SavedWord;
+import com.myapp.model.User;
+import com.myapp.dictionary.DictionaryActivity;
 import com.myapp.dictionary.EnWordDetailActivity2;
 import com.myapp.dtbassethelper.DatabaseAccess;
 import com.myapp.model.EnWord;
 import com.myapp.utils.FileIO2;
 import com.myapp.utils.TTS;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,59 +106,117 @@ public class EnWordRecyclerAdapter extends
             public void onClick(View view) {
                 //sau này check trong saved word
                 if (viewHolder.unsave == true) {
-                    //---run unsave code
-//                    GlobalVariables.db.collection("saved_word").document(GlobalVariables.userId + enWord.getId() + "")
-//                            .delete()
-//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                @Override
-//                                public void onSuccess(Void aVoid) {
-//                                    Toast.makeText(mContext, "Xoa từ khoi danh sach thanh cong", Toast.LENGTH_LONG).show();
-//                                }
-//                            })
-//                            .addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-//                                    Toast.makeText(mContext, "Xoa từ khoi danh sach that bai", Toast.LENGTH_LONG).show();
-//
-//                                }
-//                            });
-                    GlobalVariables.listSavedWordId.remove(GlobalVariables.listSavedWordId.indexOf(enWord.getId()));
+                    //---run unsave code -- dùng path variable
+                        String url = "http://10.0.2.2:8000/savedword/"+GlobalVariables.userId+"/"+enWord.getId();
+                        System.out.println("---------------------------------------------------"+url);
+                        JsonArrayRequest request = new JsonArrayRequest(Request.Method.DELETE, url, null, new Response.Listener<JSONArray>() {
+                            @Override
+                            public void onResponse(JSONArray response) {
+                                Toast.makeText(mContext, "Bỏ lưu từ thành công..", Toast.LENGTH_SHORT).show();
+                            }
+                        }, new Response.ErrorListener(){
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+//                                Toast.makeText(mContext, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
-                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(mContext);
-                    databaseAccess.open();
-                    databaseAccess.unSaveOneWord(GlobalVariables.userId, enWord.getId());
-                    databaseAccess.close();
+                        RequestQueue requestQueue = Volley.newRequestQueue(mContext);
+                        requestQueue.add(request);
+
+
+                    GlobalVariables.listSavedWordId.remove(GlobalVariables.listSavedWordId.indexOf(enWord.getId()));
+//
+//                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(mContext);
+//                    databaseAccess.open();
+//                    databaseAccess.unSaveOneWord(GlobalVariables.userId, enWord.getId());
+//                    databaseAccess.close();
 
                     viewHolder.btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_bookmark_outline_32px);
                     viewHolder.unsave = !viewHolder.unsave;
                 } else {
-                    //---run save code
-//                    HashMap<String, Object> map = new HashMap<>();
-//                    map.put("user_id", GlobalVariables.userId);
-//                    map.put("word_id", enWord.getId());
-//                    GlobalVariables.db.collection("saved_word")
-//                            .document(GlobalVariables.userId + enWord.getId() + "").set(map, SetOptions.merge())
-//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                @Override
-//                                public void onSuccess(Void unused) {
-//                                    Toast.makeText(mContext, "Lưu từ thành công", Toast.LENGTH_LONG).show();
-//                                }
+                    //---run save code - dùng path variable
+//                    String url = "http://10.0.2.2:8000/savedword"+GlobalVariables.userId+"/"+enWord.getId();
+//                    System.out.println("---------------------------------------------------"+url);
+//                    JsonArrayRequest request = new JsonArrayRequest(Request.Method.POST, url, null, new Response.Listener<JSONArray>() {
+//                        @Override
+//                        public void onResponse(JSONArray response) {
+//                            Toast.makeText(mContext, "Lưu từ thành công..", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }, new Response.ErrorListener(){
+//                        @Override
+//                        public void onErrorResponse(VolleyError error) {
+////                            Toast.makeText(mContext, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
 //
-//                }).addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Toast.makeText(mContext, "Lưu từ khong thành công", Toast.LENGTH_LONG).show();
-//                    }
-//                });
+//                    RequestQueue requestQueue = Volley.newRequestQueue(mContext);
+//                    requestQueue.add(request);
 
-                    //them ca vao trong nay cho de dung
+
+                    //-- dùng json body
+                    String url = "http://10.0.2.2:8000/savedword";//+GlobalVariables.userId+"/"+enWord.getId();
+                    try {
+
+                        SavedWord savedWord = new SavedWord();
+                        savedWord.setId(0);
+                        savedWord.getEnWord().setId(enWord.getId());
+                        savedWord.getUser().setId(Integer.parseInt(GlobalVariables.userId));
+                        RequestQueue requestQueue = Volley.newRequestQueue(mContext);
+
+                        Gson gson = new Gson();
+                        String jsonStr = gson.toJson(savedWord);
+                        final String mRequestBody = jsonStr;
+                        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.i("LOG_RESPONSE", response);
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e("LOG_RESPONSE", error.toString());
+                            }
+                        }) {
+                            @Override
+                            public String getBodyContentType() {
+                                return "application/json; charset=utf-8";
+                            }
+
+                            @Override
+                            public byte[] getBody() throws AuthFailureError {
+                                try {
+                                    return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
+                                } catch (UnsupportedEncodingException uee) {
+                                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", mRequestBody, "utf-8");
+                                    return null;
+                                }
+                            }
+
+                            @Override
+                            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                                String responseString = "";
+                                if (response != null) {
+                                    responseString = String.valueOf(response.statusCode);
+                                }
+                                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
+                            }
+                        };
+
+                        requestQueue.add(stringRequest);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+
+//                    //them ca vao trong nay cho de dung
                     GlobalVariables.listSavedWordId.add((enWord.getId()));
-
-                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(mContext);
-                    databaseAccess.open();
-                    databaseAccess.saveOneWord(GlobalVariables.userId, enWord.getId());
-                    databaseAccess.close();
-
+//
+//                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(mContext);
+//                    databaseAccess.open();
+//                    databaseAccess.saveOneWord(GlobalVariables.userId, enWord.getId());
+//                    databaseAccess.close();
+//
                     viewHolder.btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
                     viewHolder.unsave = !viewHolder.unsave;
                 }
