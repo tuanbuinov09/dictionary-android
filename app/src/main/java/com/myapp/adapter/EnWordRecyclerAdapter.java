@@ -125,35 +125,13 @@ public class EnWordRecyclerAdapter extends
                         requestQueue.add(request);
 
 
-                    GlobalVariables.listSavedWordId.remove(GlobalVariables.listSavedWordId.indexOf(enWord.getId()));
-//
-//                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(mContext);
-//                    databaseAccess.open();
-//                    databaseAccess.unSaveOneWord(GlobalVariables.userId, enWord.getId());
-//                    databaseAccess.close();
+                    while(GlobalVariables.listSavedWordId.indexOf(enWord.getId())!=-1){
+                        GlobalVariables.listSavedWordId.remove(GlobalVariables.listSavedWordId.indexOf(enWord.getId()));
 
+                    }
                     viewHolder.btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_bookmark_outline_32px);
                     viewHolder.unsave = !viewHolder.unsave;
                 } else {
-                    //---run save code - dùng path variable
-//                    String url = "http://10.0.2.2:8000/savedword"+GlobalVariables.userId+"/"+enWord.getId();
-//                    System.out.println("---------------------------------------------------"+url);
-//                    JsonArrayRequest request = new JsonArrayRequest(Request.Method.POST, url, null, new Response.Listener<JSONArray>() {
-//                        @Override
-//                        public void onResponse(JSONArray response) {
-//                            Toast.makeText(mContext, "Lưu từ thành công..", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }, new Response.ErrorListener(){
-//                        @Override
-//                        public void onErrorResponse(VolleyError error) {
-////                            Toast.makeText(mContext, "Fail to get the data..", Toast.LENGTH_SHORT).show();
-//                        }
-//                    });
-//
-//                    RequestQueue requestQueue = Volley.newRequestQueue(mContext);
-//                    requestQueue.add(request);
-
-
                     //-- dùng json body
                     String url = "http://10.0.2.2:8000/savedword";//+GlobalVariables.userId+"/"+enWord.getId();
                     try {
@@ -211,12 +189,7 @@ public class EnWordRecyclerAdapter extends
 
 //                    //them ca vao trong nay cho de dung
                     GlobalVariables.listSavedWordId.add((enWord.getId()));
-//
-//                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(mContext);
-//                    databaseAccess.open();
-//                    databaseAccess.saveOneWord(GlobalVariables.userId, enWord.getId());
-//                    databaseAccess.close();
-//
+
                     viewHolder.btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
                     viewHolder.unsave = !viewHolder.unsave;
                 }

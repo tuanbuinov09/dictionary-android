@@ -28,6 +28,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -37,18 +38,24 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.firestore.SetOptions;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.myapp.GlobalVariables;
 import com.myapp.R;
 import com.myapp.adapter.ViewPagerAdapter;
 import com.myapp.dictionary.fragment.EnWordDetailFragment;
 import com.myapp.dtbassethelper.DatabaseAccess;
 import com.myapp.model.EnWord;
+import com.myapp.model.ExampleDetail;
+import com.myapp.model.Meaning;
 import com.myapp.model.SavedWord;
 import com.myapp.utils.FileIO2;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -75,48 +82,12 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
         setControl();
         setEvent();
 
-        setTitle(enWord.getWord().trim());
-        assert getSupportActionBar() != null;   //null check
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);   //show back button
-        getSupportActionBar().setElevation(0);
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainer, new EnWordDetailFragment(enWord)).commit();
-
-        askPermission();
-
-        TabLayout tabLayout = findViewById(R.id.tabLayout);
-        ViewPager2 viewPager2 = findViewById(R.id.pager);
-
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, enWordId, enWord);
-        viewPager2.setAdapter(viewPagerAdapter);
-        new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
-            switch (position) {
-                case 0:
-                    tab.setText("ENG-VIET");
-                    break;
-                case 1:
-                    tab.setText("HÌNH ẢNH");
-                    break;
-                case 2:
-                    tab.setText("GHI CHÚ");
-                    break;
-
-            }
-        }).attach();
-
-        //GHI LẠI LỊCH SỬ TRA TỪ
-        List<Integer> wordList = FileIO2.readFromFile(this);
-        if (wordList.contains(enWordId)) {
-            wordList.remove(wordList.indexOf(enWordId));
-        }
-        wordList.add(0, enWordId);
-        FileIO2.writeToFile(wordList, this);
     }
 
 
     private void setEvent() {
-        textViewTitle.setText(enWord.getWord().trim());
+
         btnBackToSavedWord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -126,120 +97,71 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
             }
         });
-        // neu trong danh sach da luu thi to mau vang
-        if (GlobalVariables.listSavedWordId.contains(enWord.getId())) {
-            unsave = true;
-            btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
-        } else {
-            unsave = false;
-            btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_bookmark_outline_32px);
-        }
+        
 
-        // luu tu xoa tu
-        btnSave_UnsaveWord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (unsave == true) {
-                    //---run unsave code
-                    GlobalVariables.db.collection("saved_word").document(GlobalVariables.userId + enWord.getId() + "")
-                            .delete()
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(EnWordDetailActivity2.this, "Xoa từ khoi danh sach thanh cong", Toast.LENGTH_LONG).show();
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(EnWordDetailActivity2.this, "Xoa từ khoi danh sach that bai", Toast.LENGTH_LONG).show();
-
-                                }
-                            });
-                    GlobalVariables.listSavedWordId.remove(GlobalVariables.listSavedWordId.indexOf(enWord.getId()));
-
-                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-                    databaseAccess.open();
-                    databaseAccess.unSaveOneWord(GlobalVariables.userId, enWord.getId());
-                    databaseAccess.close();
-
-                    btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_bookmark_outline_32px);
-                    unsave = !unsave;
-                } else {
-                    //---run save code
-                    HashMap<String, Object> map = new HashMap<>();
-                    map.put("user_id", GlobalVariables.userId);
-                    map.put("word_id", enWord.getId());
-                    GlobalVariables.db.collection("saved_word")
-                            .document(GlobalVariables.userId + enWord.getId() + "").set(map, SetOptions.merge())
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void unused) {
-                                    Toast.makeText(EnWordDetailActivity2.this, "Lưu từ thành công", Toast.LENGTH_LONG).show();
-                                    //them ca vao trong nay cho de dung
-                                }
-
-                            }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(EnWordDetailActivity2.this, "Lưu từ khong thành công", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                    GlobalVariables.listSavedWordId.add((enWord.getId()));
-
-                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-                    databaseAccess.open();
-                    databaseAccess.saveOneWord(GlobalVariables.userId, enWord.getId());
-                    databaseAccess.close();
-
-                    btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
-                    unsave = !unsave;
-                }
-            }
-        });
-//        fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-//              @Override
-//              public void onBackStackChanged() {
-//                  Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
-//                  if (currentFragment instanceof MainFragment) {
-//                      //place your filtering logic here using currentFragment
-//                  }
-//              }
-//          });
-//        topNavigation.setOnItemSelectedListener(item -> {
-//            Fragment selectedFragment = null;
-//            switch (item.getItemId()) {
-//                case R.id.pageEnWordDetail:
+//        // luu tu xoa tu
+//        btnSave_UnsaveWord.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (unsave == true) {
+//                    //---run unsave code
+//                    GlobalVariables.db.collection("saved_word").document(GlobalVariables.userId + enWord.getId() + "")
+//                            .delete()
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                    Toast.makeText(EnWordDetailActivity2.this, "Xoa từ khoi danh sach thanh cong", Toast.LENGTH_LONG).show();
+//                                }
+//                            })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Toast.makeText(EnWordDetailActivity2.this, "Xoa từ khoi danh sach that bai", Toast.LENGTH_LONG).show();
 //
-//                    Bundle bundle = new Bundle();
-//                    bundle.putInt("enWordId", enWordId);
+//                                }
+//                            });
+//                    GlobalVariables.listSavedWordId.remove(GlobalVariables.listSavedWordId.indexOf(enWord.getId()));
 //
-//                    bundle.putSerializable("enWord", savedWord);
-//                    selectedFragment = new EnWordDetailFragment(savedWord);
-//                    selectedFragment.setArguments(bundle);
-//                    break;
+//                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
+//                    databaseAccess.open();
+//                    databaseAccess.unSaveOneWord(GlobalVariables.userId, enWord.getId());
+//                    databaseAccess.close();
 //
-//                case R.id.menuImage:
-//                    Bundle bundle1 = new Bundle();
-//                    bundle1.putInt("enWordId", enWordId);
+//                    btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_bookmark_outline_32px);
+//                    unsave = !unsave;
+//                } else {
+//                    //---run save code
+//                    HashMap<String, Object> map = new HashMap<>();
+//                    map.put("user_id", GlobalVariables.userId);
+//                    map.put("word_id", enWord.getId());
+//                    GlobalVariables.db.collection("saved_word")
+//                            .document(GlobalVariables.userId + enWord.getId() + "").set(map, SetOptions.merge())
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void unused) {
+//                                    Toast.makeText(EnWordDetailActivity2.this, "Lưu từ thành công", Toast.LENGTH_LONG).show();
+//                                    //them ca vao trong nay cho de dung
+//                                }
 //
-//                    bundle1.putSerializable("enWord", savedWord);
+//                            }).addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            Toast.makeText(EnWordDetailActivity2.this, "Lưu từ khong thành công", Toast.LENGTH_LONG).show();
+//                        }
+//                    });
+//                    GlobalVariables.listSavedWordId.add((enWord.getId()));
 //
-//                    selectedFragment = new ImageFragment();
-//                    selectedFragment.setArguments(bundle1);
-//                    break;
-//                case R.id.pageYourNote:
-//                    Bundle bundleYourNote = new Bundle();
-//                    bundleYourNote.putInt("enWordId", enWordId);
-//                    selectedFragment = new YourNoteFragment();
-//                    selectedFragment.setArguments(bundleYourNote);
-//                    break;
+//                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
+//                    databaseAccess.open();
+//                    databaseAccess.saveOneWord(GlobalVariables.userId, enWord.getId());
+//                    databaseAccess.close();
+//
+//                    btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
+//                    unsave = !unsave;
+//                }
 //            }
-//
-//            fragmentManager.beginTransaction().replace(R.id.fragmentContainer,
-//                    selectedFragment, null).addToBackStack(null).commit();
-//            return true;
 //        });
+
     }
 
     private void setControl() {
@@ -247,15 +169,147 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
         topNavigation = findViewById(R.id.topNavigation);
         fragmentManager = getSupportFragmentManager();
         enWordId = getIntent().getIntExtra("enWordId", -1);
-        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-        databaseAccess.open();
-        enWord = databaseAccess.getOneEnWord(enWordId);
-        databaseAccess.close();
-
+//        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
+//        databaseAccess.open();
+//        enWord = databaseAccess.getOneEnWord(enWordId);
+//        databaseAccess.close();
+        this.getOneEnWord(enWordId);
         textViewTitle = findViewById(R.id.textViewTitle);
         btnSave_UnsaveWord = findViewById(R.id.btnSave_UnsaveWord);
         btnBackToSavedWord = findViewById(R.id.imgBtnBackToSavedWord);
         unsave = true;
+    }
+    public void getOneEnWord(int enWordId){
+        String url = "http://10.0.2.2:8000/enwords/"+enWordId;
+        System.out.println("---------------------------------------------------"+url);
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                getData(response);
+            }
+        }, new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(EnWordDetailActivity2.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(EnWordDetailActivity2.this);
+        requestQueue.add(request);
+    }
+
+    public void getData(JSONObject response) {
+        try{
+                JSONObject object = response;
+                EnWord enWord = new EnWord();
+                enWord.setWord(object.getString("word"));
+                enWord.setId(object.getInt("id"));
+                enWord.setViews(object.getInt("views"));
+                enWord.setPronunciation(object.getString("pronunciation"));
+
+                JSONArray meaningArray = object.getJSONArray("meanings");
+                ArrayList<Meaning> listMeaning = new ArrayList<>();
+
+                for(int j=0; j<meaningArray.length(); j=j+1) {
+                    JSONObject objectMeaning = meaningArray.getJSONObject(j);
+                    JSONObject objectPartOfSpeech = objectMeaning.getJSONObject("partOfSpeech");
+                    Meaning meaning = new Meaning();
+
+                    meaning.setMeaning(objectMeaning.getString("meaning"));
+                    meaning.setId(objectMeaning.getInt("id"));
+                    meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
+
+                    // bắst trường hợp k có example
+                    JSONArray exampleArray = new JSONArray();
+                    ArrayList<ExampleDetail> listExample = new ArrayList<>();
+                    try{
+                        exampleArray = objectMeaning.getJSONArray("examples");
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+                    for(int k=0; k<exampleArray.length(); k=k+1) {
+                        JSONObject exampleObject = exampleArray.getJSONObject(k);
+                        ExampleDetail exampleDetail = new ExampleDetail();
+                        exampleDetail.setId(exampleObject.getInt("id"));
+                        exampleDetail.setMeaningId(exampleObject.getInt("meaningId"));
+                        exampleDetail.setExample(exampleObject.getString("example"));
+                        exampleDetail.setExampleMeaning(exampleObject.getString("exampleMeaning"));
+
+                        listExample.add(exampleDetail);
+                    }
+
+                    meaning.setListExampleDetails(listExample);
+                    listMeaning.add(meaning);
+                }
+                enWord.setListMeaning(listMeaning);
+            this.enWord = enWord;
+            
+            textViewTitle.setText(this.enWord.getWord().trim());
+
+            setTitle(this.enWord.getWord().trim());
+
+            assert getSupportActionBar() != null;   //null check
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);   //show back button
+            getSupportActionBar().setElevation(0);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new EnWordDetailFragment(enWord)).commit();
+
+            askPermission();
+
+            TabLayout tabLayout = findViewById(R.id.tabLayout);
+            ViewPager2 viewPager2 = findViewById(R.id.pager);
+
+            ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, enWordId, enWord);
+            viewPager2.setAdapter(viewPagerAdapter);
+            new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
+                switch (position) {
+                    case 0:
+                        tab.setText("ENG-VIET");
+                        break;
+                    case 1:
+                        tab.setText("HÌNH ẢNH");
+                        break;
+                    case 2:
+                        tab.setText("GHI CHÚ");
+                        break;
+
+                }
+            }).attach();
+
+            //GHI LẠI LỊCH SỬ TRA TỪ
+            List<Integer> wordList = FileIO2.readFromFile(this);
+            if (wordList.contains(enWordId)) {
+                wordList.remove(wordList.indexOf(enWordId));
+            }
+            wordList.add(0, enWordId);
+            FileIO2.writeToFile(wordList, this);
+
+            // neu trong danh sach da luu thi to mau vang
+            if (GlobalVariables.listSavedWordId.contains(enWord.getId())) {
+                unsave = true;
+                btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
+            } else {
+                unsave = false;
+                btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_bookmark_outline_32px);
+            }
+
+            if (GlobalVariables.listSavedWordId.contains(enWord.getId())) {
+                unsave = true;
+                menuSave_unSaveWord.setIcon(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
+            } else {
+                unsave = false;
+                menuSave_unSaveWord.setIcon(R.drawable.icons8_bookmark_outline_32px);
+            }
+            if (GlobalVariables.userId.equalsIgnoreCase("") || GlobalVariables.userId == null) {
+                menuSave_unSaveWord.setVisible(false);
+            } else {
+                menuSave_unSaveWord.setVisible(true);
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -264,18 +318,7 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
         findMenuItems.inflate(R.menu.enword_detail_2_menu, menu);
         optionsMenu = menu;
         menuSave_unSaveWord = (MenuItem) optionsMenu.findItem(R.id.menu_save_unsave);
-        if (GlobalVariables.listSavedWordId.contains(enWord.getId())) {
-            unsave = true;
-            menuSave_unSaveWord.setIcon(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
-        } else {
-            unsave = false;
-            menuSave_unSaveWord.setIcon(R.drawable.icons8_bookmark_outline_32px);
-        }
-        if (GlobalVariables.userId.equalsIgnoreCase("") || GlobalVariables.userId == null) {
-            menuSave_unSaveWord.setVisible(false);
-        } else {
-            menuSave_unSaveWord.setVisible(true);
-        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -307,15 +350,16 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
 
                     RequestQueue requestQueue = Volley.newRequestQueue(EnWordDetailActivity2.this);
                     requestQueue.add(request);
+while(GlobalVariables.listSavedWordId.indexOf(enWordId)!=-1){
+    GlobalVariables.listSavedWordId.remove(GlobalVariables.listSavedWordId.indexOf(enWordId));
 
-
-                    GlobalVariables.listSavedWordId.remove(GlobalVariables.listSavedWordId.indexOf(enWord.getId()));
+}
 
                     item.setIcon(R.drawable.icons8_bookmark_outline_32px);
                     unsave = !unsave;
 
                 } else {
-                    //-- dùng json body
+                    //-- luwu dùng json body
                     String url = "http://10.0.2.2:8000/savedword";//+GlobalVariables.userId+"/"+enWord.getId();
                     try {
 
@@ -370,11 +414,9 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-
 //                    //them ca vao trong nay cho de dung
                     GlobalVariables.listSavedWordId.add((enWord.getId()));
 //
-
                     item.setIcon(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
                     unsave = !unsave;
                 }
