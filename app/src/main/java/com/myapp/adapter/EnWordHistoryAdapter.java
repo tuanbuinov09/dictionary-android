@@ -189,7 +189,7 @@ public class EnWordHistoryAdapter extends
                     holder.unsave = !holder.unsave;
                 } else {
                     //them ca vao trong nay cho de dung
-                    GlobalVariables.listSavedWordId.add(Math.toIntExact((enWord.getId())));
+                    GlobalVariables.listSavedWordId.add(enWord.getId());
 
                     DatabaseAccess databaseAccess = DatabaseAccess.getInstance(context);
                     databaseAccess.open();

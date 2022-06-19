@@ -116,12 +116,46 @@ public class YourNoteFragment extends Fragment {
         btnClearNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveUserNote("");
+                deleteUserNote();
                 etYourNote.setText("");
             }
         });
 //        return inflater.inflate(R.layout.fragment_your_note, container, false);
         return view;
+    }
+
+    private void deleteUserNote() {
+        String url = "http://10.0.2.2:7000/user-note/"+GlobalVariables.userId+"/"+enWordId;
+        System.out.println("---------------------------------------------------"+url);
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.DELETE, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                Toast.makeText(getActivity(), "Xóa ghi chú thành công..", Toast.LENGTH_SHORT).show();
+                GlobalVariables.userNote= "";
+                etYourNote.setText(GlobalVariables.userNote);
+            }
+        }, new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), "Xóa ghi chú thành công..", Toast.LENGTH_SHORT).show();
+                GlobalVariables.userNote= "";
+                etYourNote.setText(GlobalVariables.userNote);
+//                                Toast.makeText(mContext, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("authorization", "Bearer "+GlobalVariables.access_token);
+//                    params.put("refresh_token", GlobalVariables.refresh_token);
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(request);
+
     }
 
     public void getUserNote() {
@@ -180,23 +214,31 @@ public class YourNoteFragment extends Fragment {
             userNote.getEnWord().setId((long) enWordId);
             userNote.getUser().setId((long) Integer.parseInt(GlobalVariables.userId));
             userNote.setNote(content);
+
+            userNote.setUserId(Long.valueOf(GlobalVariables.userId));
+            userNote.setWordId((long) enWordId);
+
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
 
             Gson gson = new Gson();
             String jsonStr = gson.toJson(userNote);
             final String mRequestBody = jsonStr;
+            Log.i("body", mRequestBody);
+
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     Log.i("LOG_RESPONSE", response);
-                    Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT);
-//                    GlobalVariables.userNote= response;
-//                    etYourNote.setText(GlobalVariables.userNote);
+                    Toast.makeText(getActivity(), "Lưu ghi chú thành công", Toast.LENGTH_SHORT).show();
+
+                    GlobalVariables.userNote= content;
+                    etYourNote.setText(GlobalVariables.userNote);
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e("LOG_RESPONSE", error.toString());
+                    Toast.makeText(getActivity(), "Lưu ghi chú thất bại", Toast.LENGTH_SHORT).show();
                 }
             }) {
                 @Override

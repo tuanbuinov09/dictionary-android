@@ -451,7 +451,7 @@ try{
         try {
             for (int i = 0; i < response.length(); i++) {
 
-                GlobalVariables.listSavedWordId.add(Integer.parseInt(response.getString(i)));
+                GlobalVariables.listSavedWordId.add(Long.valueOf(response.getString(i)));
             }
         } catch (Exception ex) {
             ex.printStackTrace();

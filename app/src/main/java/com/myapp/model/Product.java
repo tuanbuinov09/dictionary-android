@@ -1,6 +1,8 @@
 package com.myapp.model;
 
-public class Product {
+import java.io.Serializable;
+
+public class Product implements Serializable {
 
     private Long id;
 

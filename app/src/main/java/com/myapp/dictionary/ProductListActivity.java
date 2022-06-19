@@ -61,10 +61,10 @@ public class ProductListActivity extends AppCompatActivity {
         setControl();
         setEvent();
 
-//        assert getSupportActionBar() != null;   //null check
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);   //show back button
-//        getSupportActionBar().setElevation(0);
-
+        assert getSupportActionBar() != null;   //null check
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);   //show back button
+        getSupportActionBar().setElevation(0);
+        setTitle("Sản phẩm");
         ChangeSearchView.change(searchInput, this);
     }
 

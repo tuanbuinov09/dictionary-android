@@ -13,7 +13,7 @@ public class GlobalVariables {
     public static ArrayList<EnWord> listAllWords =  new ArrayList();
     public static ArrayList<EnWord>  listAllSavedWords =  new ArrayList();
     public static FirebaseFirestore db;
-    public static ArrayList<Integer>  listSavedWordId = new ArrayList();
+    public static ArrayList<Long>  listSavedWordId = new ArrayList();
     public static ArrayList<EnWord>  listFilteredWords = new ArrayList();
     public static int limit = 15;
     public static int offset = 0;

@@ -482,10 +482,10 @@ public class DatabaseAccess {
 //    }
 
 
-    public boolean synchSavedWordToSQLite(String userId, ArrayList<Integer> listSavedWordId) {
+    public boolean synchSavedWordToSQLite(String userId, ArrayList<Long> listSavedWordId) {
         db = openHelper.getWritableDatabase();
         Cursor cursor = db.rawQuery("delete from saved_word where user_id = ?", new String[]{userId});
-        for (int wordId : listSavedWordId) {
+        for (Long wordId : listSavedWordId) {
             ContentValues contentValues = new ContentValues();
             contentValues.put("en_word_id", wordId);
             contentValues.put("user_id", userId);
@@ -545,7 +545,7 @@ public class DatabaseAccess {
                         @Override
                         public void onSuccess(Void unused) {
                             //them ca vao trong nay cho de dung
-                            GlobalVariables.listSavedWordId.add(wordId);
+                            GlobalVariables.listSavedWordId.add((long) wordId);
                         }
 
                     }).addOnFailureListener(new OnFailureListener() {

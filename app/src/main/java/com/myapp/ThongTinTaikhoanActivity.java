@@ -417,7 +417,7 @@ public class ThongTinTaikhoanActivity extends AppCompatActivity implements Custo
                             for (DocumentSnapshot snapshot : task.getResult()) {
                                 long wordId1 = snapshot.getLong("word_id");
                                 int wordId = (int) wordId1;
-                                GlobalVariables.listSavedWordId.add(wordId);
+                                GlobalVariables.listSavedWordId.add((long) wordId);
                             }
 
                             databaseAccess.synchSavedWordToSQLite(GlobalVariables.userId, GlobalVariables.listSavedWordId);

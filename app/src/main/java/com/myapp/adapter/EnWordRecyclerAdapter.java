@@ -114,11 +114,12 @@ public class EnWordRecyclerAdapter extends
                         JsonArrayRequest request = new JsonArrayRequest(Request.Method.DELETE, url, null, new Response.Listener<JSONArray>() {
                             @Override
                             public void onResponse(JSONArray response) {
-                                Toast.makeText(mContext, "Bỏ lưu từ thành công..", Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(mContext, "Bỏ lưu từ thành công..", Toast.LENGTH_SHORT).show();
                             }
                         }, new Response.ErrorListener(){
                             @Override
                             public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(mContext, "Bỏ lưu từ thành công..", Toast.LENGTH_SHORT).show();
 //                                Toast.makeText(mContext, "Fail to get the data..", Toast.LENGTH_SHORT).show();
                             }
                         }){
@@ -149,22 +150,31 @@ public class EnWordRecyclerAdapter extends
 
                         SavedWord savedWord = new SavedWord();
                         savedWord.setId(0L);
+                        //
+                        savedWord.setUserId(Long.valueOf(GlobalVariables.userId));
+                        savedWord.setWordId(enWord.getId());
+                        //
                         savedWord.getEnWord().setId(enWord.getId());
                         savedWord.getUser().setId((long) Integer.parseInt(GlobalVariables.userId));
                         RequestQueue requestQueue = Volley.newRequestQueue(mContext);
 
                         Gson gson = new Gson();
                         String jsonStr = gson.toJson(savedWord);
+
+                        Log.i("body", jsonStr);
+
                         final String mRequestBody = jsonStr;
                         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 Log.i("LOG_RESPONSE", response);
+                                Toast.makeText(mContext, "Lưu từ thành công", Toast.LENGTH_SHORT).show();
                             }
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 Log.e("LOG_RESPONSE", error.toString());
+                                Toast.makeText(mContext, "Lưu từ thất bại", Toast.LENGTH_SHORT).show();
                             }
                         }) {
                             @Override
@@ -206,7 +216,7 @@ public class EnWordRecyclerAdapter extends
 
 
 //                    //them ca vao trong nay cho de dung
-                    GlobalVariables.listSavedWordId.add(Math.toIntExact((enWord.getId())));
+                    GlobalVariables.listSavedWordId.add(enWord.getId());
 
                     viewHolder.btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
                     viewHolder.unsave = !viewHolder.unsave;

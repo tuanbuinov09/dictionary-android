@@ -67,6 +67,9 @@ public class ProductDescriptionFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         textViewProductDescription.setText(GlobalVariables.productDescription);
+        if(GlobalVariables.productDescription==null||GlobalVariables.productDescription.equalsIgnoreCase("null")){
+            textViewProductDescription.setText("");
+        }
     }
 
     public void changeDes(){
