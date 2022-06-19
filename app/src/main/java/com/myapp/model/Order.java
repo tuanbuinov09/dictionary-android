@@ -11,8 +11,17 @@ public class Order {
     private String shipPhone;
     private String shipAddress;
     private String shipNote;
+    Long userId;
     private int state;
     private List<OrderDetail> orderDetails;
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public Long getId() {
         return id;

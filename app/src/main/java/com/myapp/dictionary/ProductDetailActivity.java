@@ -3,6 +3,7 @@ package com.myapp.dictionary;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -90,12 +91,16 @@ public class ProductDetailActivity extends AppCompatActivity {
         buttonOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                postOrderRequest(productId);
+                openOrder();
             }
-
 
         });
         this.getProduct();
+    }
+    void openOrder(){
+        Intent intent = new Intent(this, OrderActivity.class);
+        intent.putExtra("product", product);
+        startActivity(intent);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -114,81 +119,10 @@ public class ProductDetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    private void postOrderRequest(Long productId) {
-        //-- dùng json body
-        String url = "http://10.0.2.2:7000/orders";
-        try {
-            Order order = new Order();
-            OrderDetail orderDetail = new OrderDetail();
-            Product product = new Product();
-            product.setId(productId);
-            orderDetail.setProduct(product);
-            orderDetail.setQuantity(1);
-            List<OrderDetail> orderDetailList = new ArrayList<>();
-            orderDetailList.add(orderDetail);
-            order.setOrderDetails(orderDetailList);
-//
-//            SavedWord savedWord = new SavedWord();
-//            savedWord.setId(0);
-//            savedWord.getEnWord().setId(enWord.getId());
-//            savedWord.getUser().setId(Integer.parseInt(GlobalVariables.userId));
-            RequestQueue requestQueue = Volley.newRequestQueue(ProductDetailActivity.this);
 
-            Gson gson = new Gson();
-            String jsonStr = gson.toJson(order);
-            final String mRequestBody = jsonStr;
-            System.out.println(mRequestBody);
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Log.i("LOG_RESPONSE", response);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e("LOG_RESPONSE", error.toString());
-                }
-            }) {
-                @Override
-                public String getBodyContentType() {
-                    return "application/json; charset=utf-8";
-                }
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String>  params = new HashMap<String, String>();
-                    params.put("authorization", "Bearer "+GlobalVariables.access_token);
-//                    params.put("refresh_token", GlobalVariables.refresh_token);
-                    return params;
-                }
-                @Override
-                public byte[] getBody() throws AuthFailureError {
-                    try {
-                        return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
-                    } catch (UnsupportedEncodingException uee) {
-                        VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", mRequestBody, "utf-8");
-                        return null;
-                    }
-                }
-
-                @Override
-                protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                    String responseString = "";
-                    if (response != null) {
-                        responseString = String.valueOf(response.statusCode);
-                    }
-                    return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
-                }
-            };
-
-            requestQueue.add(stringRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
     private void getProduct() {
 
-        String url = "http://10.0.2.2:7000/products/"+productId;
+        String url = "http://10.0.2.2:7000/products/" + productId;
         System.out.println("---------------------------------------------------"+url);
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override

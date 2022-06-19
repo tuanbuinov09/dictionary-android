@@ -7,6 +7,11 @@ public class OrderDetail {
     private Order order;
 
     private Product product;
+    Long productId;
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
 
     private int quantity;
 
@@ -47,7 +52,8 @@ public class OrderDetail {
     }
 
     public Float getProductPrice() {
-        return this.product == null ? null : this.product.getPrice();	}
+        return this.product == null ? null : this.product.getPrice();
+    }
 
     public Long getOrderId() {
         return this.order == null ? null : this.order.getId();

@@ -61,7 +61,7 @@ import java.util.List;
 import java.util.Map;
 
 public class EnWordDetailActivity2 extends AppCompatActivity {
-    public int enWordId;
+    public Long enWordId;
     EnWord enWord;
     BottomNavigationView topNavigation;
     FragmentManager fragmentManager;
@@ -167,12 +167,11 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
 
         topNavigation = findViewById(R.id.topNavigation);
         fragmentManager = getSupportFragmentManager();
-        enWordId = getIntent().getIntExtra("enWordId", -1);
+        enWordId = Long.valueOf(getIntent().getIntExtra("enWordId", -1));
 //        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
 //        databaseAccess.open();
 //        enWord = databaseAccess.getOneEnWord(enWordId);
 //        databaseAccess.close();
-        this.getOneEnWord(enWordId);
         textViewTitle = findViewById(R.id.textViewTitle);
         btnSave_UnsaveWord = findViewById(R.id.btnSave_UnsaveWord);
         btnBackToSavedWord = findViewById(R.id.imgBtnBackToSavedWord);
@@ -268,7 +267,7 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
             TabLayout tabLayout = findViewById(R.id.tabLayout);
             ViewPager2 viewPager2 = findViewById(R.id.pager);
 
-            ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, enWordId, enWord);
+            ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, Math.toIntExact(enWordId), enWord);
             viewPager2.setAdapter(viewPagerAdapter);
             new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
                 switch (position) {
@@ -290,9 +289,8 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
             if (wordList.contains(enWordId)) {
                 wordList.remove(wordList.indexOf(enWordId));
             }
-            wordList.add(0, enWordId);
+            wordList.add(0, Math.toIntExact(enWordId));
             FileIO2.writeToFile(wordList, this);
-
             // neu trong danh sach da luu thi to mau vang
             if (GlobalVariables.listSavedWordId.contains(enWord.getId())) {
                 unsave = true;
@@ -309,6 +307,7 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
                 unsave = false;
                 menuSave_unSaveWord.setIcon(R.drawable.icons8_bookmark_outline_32px);
             }
+
             if (GlobalVariables.userId.equalsIgnoreCase("") || GlobalVariables.userId == null) {
                 menuSave_unSaveWord.setVisible(false);
             } else {
@@ -326,6 +325,8 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
         findMenuItems.inflate(R.menu.enword_detail_2_menu, menu);
         optionsMenu = menu;
         menuSave_unSaveWord = (MenuItem) optionsMenu.findItem(R.id.menu_save_unsave);
+        // chuyển xuống đây do get nhanh quá menusave_unsave còn chưa được map
+        this.getOneEnWord(Math.toIntExact(enWordId));
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -352,6 +353,8 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
                     }, new Response.ErrorListener(){
                         @Override
                         public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(EnWordDetailActivity2.this, "Bỏ lưu từ thành công..", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(EnWordDetailActivity2.this, "Bỏ lưu từ thất bại..", Toast.LENGTH_SHORT).show();
 //                                Toast.makeText(mContext, "Fail to get the data..", Toast.LENGTH_SHORT).show();
                         }
                     }){
@@ -370,7 +373,6 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
                     
                     while(GlobalVariables.listSavedWordId.indexOf(enWordId)!=-1){
                         GlobalVariables.listSavedWordId.remove(GlobalVariables.listSavedWordId.indexOf(enWordId));
-
                     }
 
                     item.setIcon(R.drawable.icons8_bookmark_outline_32px);
@@ -383,6 +385,10 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
 
                         SavedWord savedWord = new SavedWord();
                         savedWord.setId(0L);
+                        //
+                        savedWord.setUserId(Long.valueOf(GlobalVariables.userId));
+                        savedWord.setWordId(enWord.getId());
+                        //
                         savedWord.getEnWord().setId(enWord.getId());
                         savedWord.getUser().setId((long) Integer.parseInt(GlobalVariables.userId));
                         RequestQueue requestQueue = Volley.newRequestQueue(EnWordDetailActivity2.this);
@@ -390,17 +396,18 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
                         Gson gson = new Gson();
                         String jsonStr = gson.toJson(savedWord);
                         final String mRequestBody = jsonStr;
-                        System.out.println(mRequestBody);
+                        Log.i("Body",mRequestBody);
                         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
                                 Log.i("LOG_RESPONSE", response);
-                                Toast.makeText(EnWordDetailActivity2.this,response, Toast.LENGTH_SHORT);
+                                Toast.makeText(EnWordDetailActivity2.this,"Lưu từ thành công", Toast.LENGTH_SHORT).show();
                             }
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 Log.e("LOG_RESPONSE", error.toString());
+                                Toast.makeText(EnWordDetailActivity2.this,"Lưu từ thất bại", Toast.LENGTH_SHORT).show();
                             }
                         }) {
                             @Override
@@ -442,7 +449,7 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
                     }
 
 //                    //them ca vao trong nay cho de dung
-                    GlobalVariables.listSavedWordId.add(Math.toIntExact((enWord.getId())));
+                    GlobalVariables.listSavedWordId.add((enWord.getId()));
 //
                     item.setIcon(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
                     unsave = !unsave;
