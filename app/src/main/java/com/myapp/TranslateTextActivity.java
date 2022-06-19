@@ -165,7 +165,7 @@ public class TranslateTextActivity extends AppCompatActivity implements CustomDi
                     EnWord enWord = getEnWord(text);
                     if (enWord != null) {
                         Intent intent = new Intent(TranslateTextActivity.this, EnWordDetailActivity2.class);
-                        Integer enWordId = enWord.getId();
+                        Integer enWordId = Math.toIntExact(enWord.getId());
                         intent.putExtra("enWordId", enWordId);
                         startActivity(intent);
                         return;

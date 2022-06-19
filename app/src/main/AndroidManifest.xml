@@ -28,7 +28,10 @@
         tools:ignore="ExtraText"
         tools:replace="android:icon,android:theme">
         <activity
-            android:name=".dictionary.Product_DictionaryActivity"
+            android:name=".dictionary.ProductListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".dictionary.ProductDetailActivity"
             android:exported="false" />
 <!--        <activity-->
 <!--            android:name=".learnenglish.fragment.home.activity.listening.ListeningExerciseActivity"-->

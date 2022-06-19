@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EnWord implements Serializable {
-    private int id;
+    private Long id;
 
-    public int getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(int value) {
+    public void setId(Long value) {
         this.id = value;
     }
 
@@ -45,13 +45,13 @@ public class EnWord implements Serializable {
         this.listMeaning = listMeaning;
     }
 
-    public EnWord(int id_, String word_, String pronunciation_, ArrayList<Meaning> listMeaning_) {
+    public EnWord(Long id_, String word_, String pronunciation_, ArrayList<Meaning> listMeaning_) {
         this.id = id_;
         this.word = word_;
         this.pronunciation = pronunciation_;
         this.listMeaning = listMeaning_;
     }
-    public EnWord(int id_, String word_, String pronunciation_) {
+    public EnWord(Long id_, String word_, String pronunciation_) {
         this.id = id_;
         this.word = word_;
         this.pronunciation = pronunciation_;

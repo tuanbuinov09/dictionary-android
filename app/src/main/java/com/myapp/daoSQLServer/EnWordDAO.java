@@ -25,7 +25,7 @@ public class EnWordDAO {
         String sql = "select * from en_word where id = " + id;
         ResultSet rs = statement.executeQuery(sql);
         while (rs.next()) {
-            enWord.setId(id);
+            enWord.setId((long) id);
             enWord.setWord(rs.getString("word"));
             enWord.setPronunciation(rs.getString("pronunciation"));
             enWord.setListMeaning(new MeaningDAO().getAllMeaningOfEnWord(id));

@@ -182,18 +182,18 @@ public class EnWordHistoryAdapter extends
 
                     DatabaseAccess databaseAccess = DatabaseAccess.getInstance(context);
                     databaseAccess.open();
-                    databaseAccess.unSaveOneWord(GlobalVariables.userId, enWord.getId());
+                    databaseAccess.unSaveOneWord(GlobalVariables.userId, Math.toIntExact(enWord.getId()));
                     databaseAccess.close();
 
                     holder.btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_bookmark_outline_32px);
                     holder.unsave = !holder.unsave;
                 } else {
                     //them ca vao trong nay cho de dung
-                    GlobalVariables.listSavedWordId.add((enWord.getId()));
+                    GlobalVariables.listSavedWordId.add(Math.toIntExact((enWord.getId())));
 
                     DatabaseAccess databaseAccess = DatabaseAccess.getInstance(context);
                     databaseAccess.open();
-                    databaseAccess.saveOneWord(GlobalVariables.userId, enWord.getId());
+                    databaseAccess.saveOneWord(GlobalVariables.userId, Math.toIntExact(enWord.getId()));
                     databaseAccess.close();
 
                     holder.btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_filled_bookmark_ribbon_32px_1);

@@ -1,7 +1,7 @@
 package com.myapp.model;
 
 public class UserNote {
-    int id;
+    Long id;
     User user;
     EnWord enWord;
     String note;
@@ -10,11 +10,11 @@ public class UserNote {
         this.enWord = new EnWord();
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

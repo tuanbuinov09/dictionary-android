@@ -43,6 +43,7 @@ import org.json.JSONArray;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -124,9 +125,9 @@ public class YourNoteFragment extends Fragment {
     }
 
     public void getUserNote() {
-        GlobalVariables.userNote="";
+        GlobalVariables.userNote = "";
         //-- dùng json body
-            String url = "http://10.0.2.2:8000/user-note?wordId="+enWordId+"&userId="+GlobalVariables.userId;//+GlobalVariables.userId+"/"+enWord.getId();
+        String url = "http://10.0.2.2:7000/user-note?wordId=" + enWordId + "&userId=" + GlobalVariables.userId;//+GlobalVariables.userId+"/"+enWord.getId();
         try {
 
             StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
@@ -134,12 +135,21 @@ public class YourNoteFragment extends Fragment {
                 public void onResponse(String response) {
                     getResponseData(response);
                 }
-            }, new Response.ErrorListener(){
+            }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Toast.makeText(getActivity(), "Fail to get the data..", Toast.LENGTH_SHORT).show();
                 }
-            });
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("authorization", "Bearer " + GlobalVariables.access_token);
+//                    params.put("refresh_token", GlobalVariables.refresh_token);
+                    return params;
+                }
+
+            };
 
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
             requestQueue.add(request);
@@ -148,25 +158,27 @@ public class YourNoteFragment extends Fragment {
             e.printStackTrace();
         }
     }
-    void getResponseData(String response){
+
+    void getResponseData(String response) {
         System.out.println(response);
         try {
-                GlobalVariables.userNote= response;
-                etYourNote.setText(GlobalVariables.userNote);
-        }catch (Exception ex){
+            GlobalVariables.userNote = response;
+            etYourNote.setText(GlobalVariables.userNote);
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
     }
+
     public void saveUserNote(String content) {
 
-        String url = "http://10.0.2.2:8000/user-note";//+GlobalVariables.userId+"/"+enWord.getId();
+        String url = "http://10.0.2.2:7000/user-note";//+GlobalVariables.userId+"/"+enWord.getId();
         try {
 
             UserNote userNote = new UserNote();
-            userNote.setId(0);
-            userNote.getEnWord().setId(enWordId);
-            userNote.getUser().setId(Integer.parseInt(GlobalVariables.userId));
+            userNote.setId(0L);
+            userNote.getEnWord().setId((long) enWordId);
+            userNote.getUser().setId((long) Integer.parseInt(GlobalVariables.userId));
             userNote.setNote(content);
             RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
 
@@ -177,7 +189,7 @@ public class YourNoteFragment extends Fragment {
                 @Override
                 public void onResponse(String response) {
                     Log.i("LOG_RESPONSE", response);
-                    Toast.makeText(getActivity(),response, Toast.LENGTH_SHORT);
+                    Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT);
 //                    GlobalVariables.userNote= response;
 //                    etYourNote.setText(GlobalVariables.userNote);
                 }
@@ -190,6 +202,13 @@ public class YourNoteFragment extends Fragment {
                 @Override
                 public String getBodyContentType() {
                     return "application/json; charset=utf-8";
+                }
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String>  params = new HashMap<String, String>();
+                    params.put("authorization", "Bearer "+GlobalVariables.access_token);
+//                    params.put("refresh_token", GlobalVariables.refresh_token);
+                    return params;
                 }
 
                 @Override
