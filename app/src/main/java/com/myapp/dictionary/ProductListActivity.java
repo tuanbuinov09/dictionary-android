@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -20,15 +19,17 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.myapp.GlobalVariables;
 import com.myapp.Main;
 import com.myapp.R;
-import com.myapp.adapter.EnWordRecyclerAdapter;
+import com.myapp.adapter.ProductRecyclerAdapter;
 import com.myapp.dtbassethelper.DatabaseAccess;
 import com.myapp.model.EnWord;
 import com.myapp.model.ExampleDetail;
 import com.myapp.model.Meaning;
+import com.myapp.model.Product;
 import com.myapp.utils.ChangeSearchView;
 
 import org.json.JSONArray;
@@ -39,14 +40,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class YourWordActivity extends AppCompatActivity {
-    ListView listViewYourWord;
-    //    TextToSpeech ttobj;
+public class ProductListActivity extends AppCompatActivity {
     androidx.appcompat.widget.SearchView searchInput = null;
-    ArrayList<EnWord> listEnWord = new ArrayList<>();
-
+    ArrayList<Product> listProduct = new ArrayList<>();
+    ArrayList<Product> filterList = new ArrayList<>();
     private RecyclerView recyclerView;
-    private EnWordRecyclerAdapter enWordRecyclerAdapter;
+    private ProductRecyclerAdapter productRecyclerAdapter;
     private ArrayList<EnWord> list;
     boolean isScrolling = false;
     LinearLayoutManager manager;
@@ -55,29 +54,16 @@ public class YourWordActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-//        if(GlobalVariables.username.equalsIgnoreCase("") || GlobalVariables.username == null){
-//            Toast.makeText(this,"Hãy đăng nhập để sử dụng tính năng này",Toast.LENGTH_LONG).show();
-//            Intent intent = new Intent(this, SignIn.class);
-//            startActivity(intent);
-//            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-//        }
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_your_word);
-//        ttobj = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-//            @Override
-//            public void onInit(int status) {
-//                if (status == TextToSpeech.SUCCESS) {
-//                    ttobj.setLanguage(Locale.ENGLISH);
-//                }
-//            }
-//        });
+        setContentView(R.layout.activity_product_list);
 
         setControl();
         setEvent();
 
-        assert getSupportActionBar() != null;   //null check
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);   //show back button
-        getSupportActionBar().setElevation(0);
+//        assert getSupportActionBar() != null;   //null check
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);   //show back button
+//        getSupportActionBar().setElevation(0);
 
         ChangeSearchView.change(searchInput, this);
     }
@@ -86,38 +72,17 @@ public class YourWordActivity extends AppCompatActivity {
         super.onResume();
         //để khi lưu hay bỏ lưu ở word detail thì cái nàfy đc cậpj nhật
         try{
-            enWordRecyclerAdapter.notifyDataSetChanged();
+            productRecyclerAdapter.notifyDataSetChanged();
         }catch (Exception ex){
             ex.printStackTrace();
         }
-    }
-
-    public void setYourWordAdapter() {
-        //
-//        YourWordAdapter adapter = new
-//                YourWordAdapter(this, this.listEnWord, R.layout.en_word_item);
-//        listViewYourWord.setAdapter(adapter);
-//        listViewYourWord.setOnItemClickListener(new AdapterView.OnItemClickListener()
-//        {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position,
-//                                    long id) {
-//                Toast.makeText(YourWordActivity.this, "Bạn chọn " +
-//                        listEnWord.get(position).getId(), Toast.LENGTH_SHORT).show();
-//
-//                Intent intent = new Intent(view.getContext(), EnWordDetailActivity.class);
-//                intent.putExtra("enWordId", listEnWord.get(position).getId());
-//                view.getContext().startActivity(intent);
-//                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-//            }
-//        });
     }
 
     private void filter(String text) {
 
         // if query is empty: return all
         if (text.isEmpty()) {
-            enWordRecyclerAdapter.filterList(GlobalVariables.listAllSavedWords);
+            productRecyclerAdapter.filterList(this.listProduct);
             return;
         }
         GlobalVariables.listFilteredWords.clear();
@@ -131,7 +96,7 @@ public class YourWordActivity extends AppCompatActivity {
             Toast.makeText(this, "No Data Found..", Toast.LENGTH_SHORT).show();
             return;
         } else {
-            enWordRecyclerAdapter.filterList(GlobalVariables.listFilteredWords);
+            productRecyclerAdapter.filterList(this.filterList);
         }
     }
 
@@ -188,7 +153,7 @@ public class YourWordActivity extends AppCompatActivity {
                 databaseAccess.close();
 
                 GlobalVariables.listAllSavedWords.addAll(justFetched);
-                enWordRecyclerAdapter.notifyDataSetChanged();
+                productRecyclerAdapter.notifyDataSetChanged();
 
                 progressBar.setVisibility(View.GONE);
 
@@ -225,13 +190,13 @@ public class YourWordActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progress_bar);
 
-        this.getSavedWord(Integer.parseInt(GlobalVariables.userId));
-        System.out.println("-------------" + GlobalVariables.listAllSavedWords.size());
+        this.getProducts();
+//        System.out.println("-------------" + GlobalVariables.listAllSavedWords.size());
         
     }
-    public void setUpRecyclerViewYourWord(){
-        enWordRecyclerAdapter = new EnWordRecyclerAdapter(this, GlobalVariables.listAllSavedWords);
-        recyclerView.setAdapter(enWordRecyclerAdapter);
+    public void setUpRecyclerViewProduct(){
+        productRecyclerAdapter = new ProductRecyclerAdapter(this, this.listProduct);
+        recyclerView.setAdapter(productRecyclerAdapter);
         manager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(manager);
     }
@@ -251,19 +216,19 @@ public class YourWordActivity extends AppCompatActivity {
     }
 
 // lấy từ api
-        private void getSavedWord(int userId) {
+        private void getProducts() {
 
-        String url = "http://10.0.2.2:7000/savedwords/simplified/"+userId;
+        String url = "http://10.0.2.2:7000/products";
         System.out.println("---------------------------------------------------"+url);
-        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
-            public void onResponse(JSONArray response) {
+            public void onResponse(JSONObject response) {
                 getData(response);
             }
         }, new Response.ErrorListener(){
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(YourWordActivity.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProductListActivity.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
             }
         }){
             @Override
@@ -276,69 +241,71 @@ public class YourWordActivity extends AppCompatActivity {
 
         };
 
-        RequestQueue requestQueue = Volley.newRequestQueue(YourWordActivity.this);
+        RequestQueue requestQueue = Volley.newRequestQueue(ProductListActivity.this);
         requestQueue.add(request);
     }
 
-    private void getData(JSONArray array) {
+    private void getData(JSONObject response) {
         try{
-            GlobalVariables.listAllSavedWords.clear();
-//            JSONArray array = response;
+            JSONArray array = response.getJSONArray("data");
             for(int i=0; i<array.length(); i=i+1){
                 JSONObject object = array.getJSONObject(i);
+                Product product = new Product();
 
-                EnWord enWord = new EnWord();
-                enWord.setWord(object.getString("word"));
-                enWord.setId(object.getLong("id"));
-                enWord.setViews(object.getInt("views"));
-                enWord.setPronunciation(object.getString("pronunciation"));
+                product.setId(object.getLong("id"));
+                product.setName(object.getString("name"));
+                product.setQuantity(object.getInt("quantity"));
+                product.setUnit(object.getString("unit"));
+                product.setPrice((float) object.getDouble("price"));
+                product.setDescription(object.getString("description"));
+                product.setViews(object.getInt("views"));
 
-                JSONArray meaningArray = object.getJSONArray("meanings");
-                ArrayList<Meaning> listMeaning = new ArrayList<>();
+//                JSONArray meaningArray = object.getJSONArray("meanings");
+//                ArrayList<Meaning> listMeaning = new ArrayList<>();
+//
+//                for(int j=0; j<meaningArray.length(); j=j+1) {
+//                    JSONObject objectMeaning = meaningArray.getJSONObject(j);
+//                    JSONObject objectPartOfSpeech = objectMeaning.getJSONObject("partOfSpeech");
+//                    Meaning meaning = new Meaning();
+//
+//                    meaning.setMeaning(objectMeaning.getString("meaning"));
+//                    meaning.setId(objectMeaning.getInt("id"));
+//                    meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
+//
+//                    // bắst trường hợp k có example
+//                    JSONArray exampleArray = new JSONArray();
+//                    ArrayList<ExampleDetail> listExample = new ArrayList<>();
+//                    try{
+//                        exampleArray = objectMeaning.getJSONArray("examples");
+//                    }catch (Exception ex){
+//                        ex.printStackTrace();
+//                    }
+//                    for(int k=0; k<exampleArray.length(); k=k+1) {
+//                        JSONObject exampleObject = exampleArray.getJSONObject(k);
+//                        ExampleDetail exampleDetail = new ExampleDetail();
+//                        exampleDetail.setId(exampleObject.getInt("id"));
+//                        exampleDetail.setMeaningId(exampleObject.getInt("meaningId"));
+//                        exampleDetail.setExample(exampleObject.getString("example"));
+//                        exampleDetail.setExampleMeaning(exampleObject.getString("exampleMeaning"));
+//
+//                        listExample.add(exampleDetail);
+//                    }
+//
+//                    meaning.setListExampleDetails(listExample);
+//
+//                    listMeaning.add(meaning);
+//                }
 
-                for(int j=0; j<meaningArray.length(); j=j+1) {
-                    JSONObject objectMeaning = meaningArray.getJSONObject(j);
-                    JSONObject objectPartOfSpeech = objectMeaning.getJSONObject("partOfSpeech");
-                    Meaning meaning = new Meaning();
-
-                    meaning.setMeaning(objectMeaning.getString("meaning"));
-                    meaning.setId((int) objectMeaning.getLong("id"));
-                    meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
-
-                    // bắst trường hợp k có example
-                    JSONArray exampleArray = new JSONArray();
-                    ArrayList<ExampleDetail> listExample = new ArrayList<>();
-                    try{
-                        exampleArray = objectMeaning.getJSONArray("examples");
-                    }catch (Exception ex){
-                        ex.printStackTrace();
-                    }
-                    for(int k=0; k<exampleArray.length(); k=k+1) {
-                        JSONObject exampleObject = exampleArray.getJSONObject(k);
-                        ExampleDetail exampleDetail = new ExampleDetail();
-                        exampleDetail.setId((int) exampleObject.getLong("id"));
-                        exampleDetail.setMeaningId(exampleObject.getInt("meaningId"));
-                        exampleDetail.setExample(exampleObject.getString("example"));
-                        exampleDetail.setExampleMeaning(exampleObject.getString("exampleMeaning"));
-
-                        listExample.add(exampleDetail);
-                    }
-
-                    meaning.setListExampleDetails(listExample);
-
-                    listMeaning.add(meaning);
-                }
-
-                enWord.setListMeaning(listMeaning);
-                GlobalVariables.listAllSavedWords.add(enWord);
+//                enWord.setListMeaning(listMeaning);
+                this.listProduct.add(product);
             }
-            for(EnWord en : GlobalVariables.listAllSavedWords){
-                System.out.println("----"+en.toString());
+//            for(EnWord en : GlobalVariables.listAllSavedWords){
+//                System.out.println("----"+en.toString());
 //
 //                GlobalVariables.listSavedWordId.add(en.getId());
-            }
+//            }
             // vì gọi api chạy ngầm nên ph để set adapter ở đây để set sau khi chạy api xong
-            setUpRecyclerViewYourWord();
+            setUpRecyclerViewProduct();
         }catch (JSONException e){
             e.printStackTrace();
         }

@@ -42,7 +42,9 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EnWordRecyclerAdapter extends
         RecyclerView.Adapter<EnWordRecyclerAdapter.ViewHolder> {
@@ -107,7 +109,7 @@ public class EnWordRecyclerAdapter extends
                 //sau này check trong saved word
                 if (viewHolder.unsave == true) {
                     //---run unsave code -- dùng path variable
-                        String url = "http://10.0.2.2:8000/savedword/"+GlobalVariables.userId+"/"+enWord.getId();
+                        String url = "http://10.0.2.2:7000/savedwords/"+GlobalVariables.userId+"/"+enWord.getId();
                         System.out.println("---------------------------------------------------"+url);
                         JsonArrayRequest request = new JsonArrayRequest(Request.Method.DELETE, url, null, new Response.Listener<JSONArray>() {
                             @Override
@@ -119,7 +121,16 @@ public class EnWordRecyclerAdapter extends
                             public void onErrorResponse(VolleyError error) {
 //                                Toast.makeText(mContext, "Fail to get the data..", Toast.LENGTH_SHORT).show();
                             }
-                        });
+                        }){
+                            @Override
+                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                Map<String, String>  params = new HashMap<String, String>();
+                                params.put("authorization", "Bearer "+GlobalVariables.access_token);
+//                    params.put("refresh_token", GlobalVariables.refresh_token);
+                                return params;
+                            }
+
+                        };
 
                         RequestQueue requestQueue = Volley.newRequestQueue(mContext);
                         requestQueue.add(request);
@@ -133,13 +144,13 @@ public class EnWordRecyclerAdapter extends
                     viewHolder.unsave = !viewHolder.unsave;
                 } else {
                     //-- dùng json body
-                    String url = "http://10.0.2.2:8000/savedword";//+GlobalVariables.userId+"/"+enWord.getId();
+                    String url = "http://10.0.2.2:7000/savedwords";//+GlobalVariables.userId+"/"+enWord.getId();
                     try {
 
                         SavedWord savedWord = new SavedWord();
-                        savedWord.setId(0);
+                        savedWord.setId(0L);
                         savedWord.getEnWord().setId(enWord.getId());
-                        savedWord.getUser().setId(Integer.parseInt(GlobalVariables.userId));
+                        savedWord.getUser().setId((long) Integer.parseInt(GlobalVariables.userId));
                         RequestQueue requestQueue = Volley.newRequestQueue(mContext);
 
                         Gson gson = new Gson();
@@ -159,6 +170,13 @@ public class EnWordRecyclerAdapter extends
                             @Override
                             public String getBodyContentType() {
                                 return "application/json; charset=utf-8";
+                            }
+                            @Override
+                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                Map<String, String>  params = new HashMap<String, String>();
+                                params.put("authorization", "Bearer "+GlobalVariables.access_token);
+//                    params.put("refresh_token", GlobalVariables.refresh_token);
+                                return params;
                             }
 
                             @Override
@@ -188,7 +206,7 @@ public class EnWordRecyclerAdapter extends
 
 
 //                    //them ca vao trong nay cho de dung
-                    GlobalVariables.listSavedWordId.add((enWord.getId()));
+                    GlobalVariables.listSavedWordId.add(Math.toIntExact((enWord.getId())));
 
                     viewHolder.btnSave_UnsaveWord.setBackgroundResource(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
                     viewHolder.unsave = !viewHolder.unsave;
@@ -201,7 +219,7 @@ public class EnWordRecyclerAdapter extends
             public void onClick(View view) {
 //                Intent intent = new Intent(view.getContext(), EnWordDetailActivity.class);
                 Intent intent = new Intent(view.getContext(), EnWordDetailActivity2.class);
-                Integer enWordId = enWordArrayList.get(viewHolder.getAbsoluteAdapterPosition()).getId();
+                Integer enWordId = Math.toIntExact(enWordArrayList.get(viewHolder.getAbsoluteAdapterPosition()).getId());
                 intent.putExtra("enWordId", enWordId);
                 view.getContext().startActivity(intent);
 //                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);

@@ -58,6 +58,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EnWordDetailActivity2 extends AppCompatActivity {
     public int enWordId;
@@ -81,8 +82,6 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
         setContentView(R.layout.activity_en_word_detail2);
         setControl();
         setEvent();
-
-
     }
 
 
@@ -97,7 +96,7 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
             }
         });
-        
+
 
 //        // luu tu xoa tu
 //        btnSave_UnsaveWord.setOnClickListener(new View.OnClickListener() {
@@ -180,7 +179,7 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
         unsave = true;
     }
     public void getOneEnWord(int enWordId){
-        String url = "http://10.0.2.2:8000/enwords/"+enWordId;
+        String url = "http://10.0.2.2:7000/enwords/"+enWordId;
         System.out.println("---------------------------------------------------"+url);
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -190,9 +189,18 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
         }, new Response.ErrorListener(){
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(EnWordDetailActivity2.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EnWordDetailActivity2.this, error.toString()+"Fail to get the data..", Toast.LENGTH_SHORT).show();
             }
-        });
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("authorization", "Bearer "+GlobalVariables.access_token);
+//                    params.put("refresh_token", GlobalVariables.refresh_token);
+                return params;
+            }
+
+        };
 
         RequestQueue requestQueue = Volley.newRequestQueue(EnWordDetailActivity2.this);
         requestQueue.add(request);
@@ -200,10 +208,10 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
 
     public void getData(JSONObject response) {
         try{
-                JSONObject object = response;
+                JSONObject object = response.getJSONObject("data");
                 EnWord enWord = new EnWord();
                 enWord.setWord(object.getString("word"));
-                enWord.setId(object.getInt("id"));
+                enWord.setId(object.getLong("id"));
                 enWord.setViews(object.getInt("views"));
                 enWord.setPronunciation(object.getString("pronunciation"));
 
@@ -216,7 +224,7 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
                     Meaning meaning = new Meaning();
 
                     meaning.setMeaning(objectMeaning.getString("meaning"));
-                    meaning.setId(objectMeaning.getInt("id"));
+                    meaning.setId((int) objectMeaning.getLong("id"));
                     meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
 
                     // bắst trường hợp k có example
@@ -230,7 +238,7 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
                     for(int k=0; k<exampleArray.length(); k=k+1) {
                         JSONObject exampleObject = exampleArray.getJSONObject(k);
                         ExampleDetail exampleDetail = new ExampleDetail();
-                        exampleDetail.setId(exampleObject.getInt("id"));
+                        exampleDetail.setId((int) exampleObject.getLong("id"));
                         exampleDetail.setMeaningId(exampleObject.getInt("meaningId"));
                         exampleDetail.setExample(exampleObject.getString("example"));
                         exampleDetail.setExampleMeaning(exampleObject.getString("exampleMeaning"));
@@ -334,7 +342,7 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
             case R.id.menu_save_unsave:
                 if (unsave == true) {
                     //---run unsave code -- dùng path variable
-                    String url = "http://10.0.2.2:8000/savedword/"+GlobalVariables.userId+"/"+ enWord.getId();
+                    String url = "http://10.0.2.2:7000/savedwords/"+GlobalVariables.userId+"/"+ enWord.getId();
                     System.out.println("---------------------------------------------------"+url);
                     JsonArrayRequest request = new JsonArrayRequest(Request.Method.DELETE, url, null, new Response.Listener<JSONArray>() {
                         @Override
@@ -346,32 +354,43 @@ public class EnWordDetailActivity2 extends AppCompatActivity {
                         public void onErrorResponse(VolleyError error) {
 //                                Toast.makeText(mContext, "Fail to get the data..", Toast.LENGTH_SHORT).show();
                         }
-                    });
+                    }){
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String>  params = new HashMap<String, String>();
+                            params.put("authorization", "Bearer "+GlobalVariables.access_token);
+//                    params.put("refresh_token", GlobalVariables.refresh_token);
+                            return params;
+                        }
+
+                    };
 
                     RequestQueue requestQueue = Volley.newRequestQueue(EnWordDetailActivity2.this);
                     requestQueue.add(request);
-while(GlobalVariables.listSavedWordId.indexOf(enWordId)!=-1){
-    GlobalVariables.listSavedWordId.remove(GlobalVariables.listSavedWordId.indexOf(enWordId));
+                    
+                    while(GlobalVariables.listSavedWordId.indexOf(enWordId)!=-1){
+                        GlobalVariables.listSavedWordId.remove(GlobalVariables.listSavedWordId.indexOf(enWordId));
 
-}
+                    }
 
                     item.setIcon(R.drawable.icons8_bookmark_outline_32px);
                     unsave = !unsave;
 
                 } else {
                     //-- luwu dùng json body
-                    String url = "http://10.0.2.2:8000/savedword";//+GlobalVariables.userId+"/"+enWord.getId();
+                    String url = "http://10.0.2.2:7000/savedwords";//+GlobalVariables.userId+"/"+enWord.getId();
                     try {
 
                         SavedWord savedWord = new SavedWord();
-                        savedWord.setId(0);
+                        savedWord.setId(0L);
                         savedWord.getEnWord().setId(enWord.getId());
-                        savedWord.getUser().setId(Integer.parseInt(GlobalVariables.userId));
+                        savedWord.getUser().setId((long) Integer.parseInt(GlobalVariables.userId));
                         RequestQueue requestQueue = Volley.newRequestQueue(EnWordDetailActivity2.this);
 
                         Gson gson = new Gson();
                         String jsonStr = gson.toJson(savedWord);
                         final String mRequestBody = jsonStr;
+                        System.out.println(mRequestBody);
                         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
@@ -384,6 +403,14 @@ while(GlobalVariables.listSavedWordId.indexOf(enWordId)!=-1){
                                 Log.e("LOG_RESPONSE", error.toString());
                             }
                         }) {
+                            @Override
+                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                Map<String, String>  params = new HashMap<String, String>();
+                                params.put("authorization", "Bearer "+GlobalVariables.access_token);
+//                    params.put("refresh_token", GlobalVariables.refresh_token);
+                                return params;
+                            }
+
                             @Override
                             public String getBodyContentType() {
                                 return "application/json; charset=utf-8";
@@ -415,7 +442,7 @@ while(GlobalVariables.listSavedWordId.indexOf(enWordId)!=-1){
                     }
 
 //                    //them ca vao trong nay cho de dung
-                    GlobalVariables.listSavedWordId.add((enWord.getId()));
+                    GlobalVariables.listSavedWordId.add(Math.toIntExact((enWord.getId())));
 //
                     item.setIcon(R.drawable.icons8_filled_bookmark_ribbon_32px_1);
                     unsave = !unsave;

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -32,6 +33,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DictionaryActivity extends AppCompatActivity {
     androidx.appcompat.widget.SearchView searchInput = null;
@@ -201,7 +204,7 @@ public class DictionaryActivity extends AppCompatActivity {
 
     private void getNextChunkOfWord(int offset, int limit) {
 
-        String url = "http://10.0.2.2:8000/enwords?offset=" + offset + "&limit=" + limit;
+        String url = "http://10.0.2.2:7000/enwords/simplified?offset=" + offset + "&limit=" + limit;
         System.out.println("---------------------------------------------------" + url);
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
@@ -213,7 +216,15 @@ public class DictionaryActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(DictionaryActivity.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
             }
-        });
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("authorization", "Bearer " + GlobalVariables.access_token);
+//                    params.put("refresh_token", GlobalVariables.refresh_token);
+                return params;
+            }
+        };
 
         RequestQueue requestQueue = Volley.newRequestQueue(DictionaryActivity.this);
         requestQueue.add(request);
@@ -221,7 +232,7 @@ public class DictionaryActivity extends AppCompatActivity {
 
     private void getNextChunkOfWord(String query, int offset, int limit) {
 
-        String url = "http://10.0.2.2:8000/enwords/search?query=" + query + "&offset=" + offset + "&limit=" + limit;
+        String url = "http://10.0.2.2:7000/enwords/simplified/search?query=" + query + "&offset=" + offset + "&limit=" + limit;
         System.out.println("---------------------------------------------------" + url);
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
@@ -233,7 +244,16 @@ public class DictionaryActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(DictionaryActivity.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
             }
-        });
+        }){
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                Map<String, String>  params = new HashMap<String, String>();
+//                params.put("authorization", "Bearer "+GlobalVariables.access_token);
+////                    params.put("refresh_token", GlobalVariables.refresh_token);
+//                return params;
+//            }
+
+        };
 
         RequestQueue requestQueue = Volley.newRequestQueue(DictionaryActivity.this);
         requestQueue.add(request);
@@ -248,7 +268,7 @@ public class DictionaryActivity extends AppCompatActivity {
 
                 EnWord enWord = new EnWord();
                 enWord.setWord(object.getString("word"));
-                enWord.setId(object.getInt("id"));
+                enWord.setId(object.getLong("id"));
                 enWord.setViews(object.getInt("views"));
                 enWord.setPronunciation(object.getString("pronunciation"));
 
@@ -261,7 +281,7 @@ public class DictionaryActivity extends AppCompatActivity {
                     Meaning meaning = new Meaning();
 
                     meaning.setMeaning(objectMeaning.getString("meaning"));
-                    meaning.setId(objectMeaning.getInt("id"));
+//                    meaning.setId(objectMeaning.getInt("id"));
                     meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
 
                     // bắst trường hợp k có example

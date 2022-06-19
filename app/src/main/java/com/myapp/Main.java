@@ -4,8 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
@@ -25,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -37,7 +36,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.myapp.adapter.EnWordRecyclerAdapter;
 import com.myapp.dictionary.DictionaryActivity;
-import com.myapp.dictionary.Product_DictionaryActivity;
+import com.myapp.dictionary.ProductDetailActivity;
+import com.myapp.dictionary.ProductListActivity;
 import com.myapp.dictionary.YourWordActivity;
 import com.myapp.dtbassethelper.DatabaseAccess;
 import com.myapp.model.EnWord;
@@ -49,15 +49,16 @@ import com.myapp.utils.FileIO3;
 import com.myapp.utils.SoftKeyboard;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main extends AppCompatActivity {
 
     private Button buttonLearnEnglish, btnToAllWord, btnToYourWord, buttonTranslateText, buttonSettings, buttonAccount,
-            buttonTranslateCamera, buttonTranslateImage, buttonHistory, buttonProductDictionary;
+            buttonTranslateCamera, buttonTranslateImage, buttonHistory, buttonProductDetail;
     ImageButton btnMic;
 
     FloatingActionButton fab;
@@ -134,7 +135,12 @@ public class Main extends AppCompatActivity {
 //        databaseAccess.open();
 //        GlobalVariables.userId = databaseAccess.getCurrentUserId__OFFLINE();
 //        databaseAccess.close();
-getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
+        try{
+            getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
+
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
 //        getSavedWordOfUser();
         checkFAB();
 
@@ -287,7 +293,7 @@ getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
                 startActivity(intent);
             }
         });
-        buttonProductDictionary.setOnClickListener(new View.OnClickListener() {
+        buttonProductDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 handleButtonProductDictionary(v);
@@ -382,7 +388,7 @@ getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
         progressBar = findViewById(R.id.progress_bar);
         btnMic = findViewById(R.id.btnMic);
         buttonHistory = findViewById(R.id.buttonHistory);
-        buttonProductDictionary = findViewById(R.id.buttonProductDictionary);
+        buttonProductDetail = findViewById(R.id.buttonProductDetail);
         //default, k có từ nào trong adapter
 
 
@@ -402,43 +408,57 @@ getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
 //        GlobalVariables.userId = databaseAccess.getCurrentUserId__OFFLINE();
 //        databaseAccess.close();
 //
+try{
+    getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
 
-        //them vao de test cac chuc nang can dang nhap
-        GlobalVariables.userId = "1";
-        getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
-    }
-public void getAllSavedWordIdOfUser(int userId){
-    String url = "http://10.0.2.2:8000/savedword-id/"+userId;
-    System.out.println("---------------------------------------------------"+url);
-    JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
-        @Override
-        public void onResponse(JSONArray response) {
-            getResponseData(response);
-        }
-    }, new Response.ErrorListener(){
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Toast.makeText(Main.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
-        }
-    });
-
-    RequestQueue requestQueue = Volley.newRequestQueue(Main.this);
-    requestQueue.add(request);
-
+}catch (Exception ex){
+    ex.printStackTrace();
 }
-void getResponseData(JSONArray response){
+    }
+
+    public void getAllSavedWordIdOfUser(int userId) {
+        String url = "http://10.0.2.2:7000/savedwords/id/" + userId;
+        System.out.println("---------------------------------------------------" + url);
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                getResponseData(response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(Main.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("authorization", "Bearer "+GlobalVariables.access_token);
+//                    params.put("refresh_token", GlobalVariables.refresh_token);
+                return params;
+            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(Main.this);
+        requestQueue.add(request);
+
+    }
+
+    void getResponseData(JSONArray response) {
         System.out.println(response);
         GlobalVariables.listSavedWordId.clear();
         try {
-            for(int i=0; i<response.length(); i++){
+            for (int i = 0; i < response.length(); i++) {
 
                 GlobalVariables.listSavedWordId.add(Integer.parseInt(response.getString(i)));
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-}
+    }
+
     public void search(View view) {
         Toast.makeText(this, "bạn vừa tìm: " + searchInput.getQuery().toString().trim(), Toast.LENGTH_LONG).show();
     }
@@ -456,15 +476,20 @@ void getResponseData(JSONArray response){
     }
 
     private void nextActivity() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
+//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//        if (user == null) {
+//            //Chưa login
+//            Intent intent = new Intent(this, SignInActivity.class);
+//            startActivity(intent);
+//        } else {
+//            Intent intent = new Intent(this, ThongTinTaikhoanActivity.class);
+//            startActivity(intent);
+//        }
+
             //Chưa login
-            Intent intent = new Intent(this, SignInActivity.class);
+            Intent intent = new Intent(this, SignIn.class);
             startActivity(intent);
-        } else {
-            Intent intent = new Intent(this, ThongTinTaikhoanActivity.class);
-            startActivity(intent);
-        }
+
     }
 
     private void nextActivityLearnEnglish() {
@@ -512,10 +537,12 @@ void getResponseData(JSONArray response){
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
-    public void handleButtonProductDictionary(View view){
-        Intent intent = new Intent(this, Product_DictionaryActivity.class);
+
+    public void handleButtonProductDictionary(View view) {
+        Intent intent = new Intent(this, ProductListActivity.class);
         startActivity(intent);
     }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();

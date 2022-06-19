@@ -12,6 +12,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.myapp.dictionary.fragment.EnWordDetailFragment;
 import com.myapp.dictionary.fragment.ImageFragment;
+import com.myapp.dictionary.fragment.ProductDescriptionFragment;
 import com.myapp.dictionary.fragment.YourNoteFragment;
 import com.myapp.model.EnWord;
 
@@ -26,10 +27,9 @@ public class ViewPagerAdapterProdDetail extends FragmentPagerAdapter {
         if (position == 0)
         {
             Bundle bundle = new Bundle();
-//                bundle.putInt("enWordId", enWordId);
-            ImageFragment imageFragment = new ImageFragment();
-            imageFragment.setArguments(bundle);
-            return imageFragment;
+            ProductDescriptionFragment productDescriptionFragment = new ProductDescriptionFragment();
+            productDescriptionFragment.setArguments(bundle);
+            return productDescriptionFragment;
         }
         else if (position == 1)
         {
@@ -43,12 +43,11 @@ public class ViewPagerAdapterProdDetail extends FragmentPagerAdapter {
         return fragment;
     }
 
-
     public CharSequence getPageTitle(int position) {
         String title = null;
         if (position == 0)
         {
-            title = "Tổng quan";
+            title = "Mô tả";
         }
         else if (position == 1)
         {

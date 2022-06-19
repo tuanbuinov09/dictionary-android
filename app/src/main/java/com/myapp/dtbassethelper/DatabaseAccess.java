@@ -77,7 +77,7 @@ public class DatabaseAccess {
         Cursor cursor;
         cursor = db.rawQuery("select id, word, pronunciation from en_word", null);
         while (cursor.moveToNext()) {
-            list.add(new EnWord(cursor.getInt(0), cursor.getString(1), cursor.getString(2), getOneMeaningOfEnWord(cursor.getInt(0))));
+            list.add(new EnWord((long) cursor.getInt(0), cursor.getString(1), cursor.getString(2), getOneMeaningOfEnWord(cursor.getInt(0))));
         }
         cursor.close();
         return list;
@@ -89,7 +89,7 @@ public class DatabaseAccess {
             Cursor cursor;
             cursor = db.rawQuery("select id, word, pronunciation from en_word where id = " + id, null);
             while (cursor.moveToNext()) {
-                list.add(new EnWord(cursor.getInt(0), cursor.getString(1), cursor.getString(2), getOneMeaningOfEnWord(cursor.getInt(0))));
+                list.add(new EnWord((long) cursor.getInt(0), cursor.getString(1), cursor.getString(2), getOneMeaningOfEnWord(cursor.getInt(0))));
             }
             cursor.close();
         }
@@ -101,7 +101,7 @@ public class DatabaseAccess {
         Cursor cursor;
         cursor = db.rawQuery("select id, word, pronunciation from en_word limit " + limit + " offset " + offset, null);
         while (cursor.moveToNext()) {
-            list.add(new EnWord(cursor.getInt(0), cursor.getString(1), cursor.getString(2), getOneMeaningOfEnWord(cursor.getInt(0))));
+            list.add(new EnWord((long) cursor.getInt(0), cursor.getString(1), cursor.getString(2), getOneMeaningOfEnWord(cursor.getInt(0))));
         }
         cursor.close();
         return list;
@@ -113,7 +113,7 @@ public class DatabaseAccess {
         Cursor cursor;
         cursor = db.rawQuery("select id, word, pronunciation from en_word where word like '" + query + "%' limit " + limit + " offset " + offset, null);
         while (cursor.moveToNext()) {
-            list.add(new EnWord(cursor.getInt(0), cursor.getString(1), cursor.getString(2), getOneMeaningOfEnWord(cursor.getInt(0))));
+            list.add(new EnWord((long) cursor.getInt(0), cursor.getString(1), cursor.getString(2), getOneMeaningOfEnWord(cursor.getInt(0))));
         }
         cursor.close();
         return list;
@@ -124,7 +124,7 @@ public class DatabaseAccess {
         Cursor cursor;
         cursor = db.rawQuery("select id, word, pronunciation from en_word limit " + limit + " offset " + offset, null);
         while (cursor.moveToNext()) {
-            list.add(new EnWord(cursor.getInt(0), cursor.getString(1), cursor.getString(2), getOneMeaningOfEnWord(cursor.getInt(0))));
+            list.add(new EnWord((long) cursor.getInt(0), cursor.getString(1), cursor.getString(2), getOneMeaningOfEnWord(cursor.getInt(0))));
         }
         cursor.close();
         return list;
@@ -135,7 +135,7 @@ public class DatabaseAccess {
         Cursor cursor;
         cursor = db.rawQuery("select * from en_word where id = " + id, new String[]{});
         while (cursor.moveToNext()) {
-            enWord.setId(id);
+            enWord.setId((long) id);
             enWord.setWord(cursor.getString(1));
             enWord.setPronunciation(cursor.getString(2));
             enWord.setListMeaning(getAllMeaningOfEnWord(id));
@@ -151,7 +151,7 @@ public class DatabaseAccess {
         cursor = db.rawQuery("select * from en_word where word = '" + keyword + "'", null);
         while (cursor.moveToNext()) {
             enWord = new EnWord();
-            enWord.setId(cursor.getInt(0));
+            enWord.setId((long) cursor.getInt(0));
             enWord.setWord(cursor.getString(1));
             enWord.setPronunciation(cursor.getString(2));
         }
