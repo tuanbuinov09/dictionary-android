@@ -225,9 +225,13 @@ public class YourWordActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progress_bar);
 
-        this.getSavedWord(Integer.parseInt(GlobalVariables.userId));
-        System.out.println("-------------" + GlobalVariables.listAllSavedWords.size());
-        
+        try{
+            this.getSavedWord(Integer.parseInt(GlobalVariables.userId));
+            System.out.println("-------------" + GlobalVariables.listAllSavedWords.size());
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
     public void setUpRecyclerViewYourWord(){
         enWordRecyclerAdapter = new EnWordRecyclerAdapter(this, GlobalVariables.listAllSavedWords);
@@ -298,12 +302,23 @@ public class YourWordActivity extends AppCompatActivity {
 
                 for(int j=0; j<meaningArray.length(); j=j+1) {
                     JSONObject objectMeaning = meaningArray.getJSONObject(j);
-                    JSONObject objectPartOfSpeech = objectMeaning.getJSONObject("partOfSpeech");
+//                    JSONObject objectPartOfSpeech = objectMeaning.getJSONObject("partOfSpeech");
+//                    Meaning meaning = new Meaning();
+//
+//                    meaning.setMeaning(objectMeaning.getString("meaning"));
+////                    meaning.setId((int) objectMeaning.getLong("id"));
+//                    meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
                     Meaning meaning = new Meaning();
+                    try{
+                        JSONObject objectPartOfSpeech = objectMeaning.getJSONObject("partOfSpeech");
+                        meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
+
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
 
                     meaning.setMeaning(objectMeaning.getString("meaning"));
-                    meaning.setId((int) objectMeaning.getLong("id"));
-                    meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
+                    //
 
                     // bắst trường hợp k có example
                     JSONArray exampleArray = new JSONArray();

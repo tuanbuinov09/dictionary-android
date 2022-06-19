@@ -181,6 +181,14 @@
             android:drawableStart="@drawable/icons8_money_32px"
             android:drawableLeft="@drawable/icons8_money_32px"
             android:text="Đặt mua từ điển T11" />
+        <Button
+            android:id="@+id/buttonFeedback"
+            style="@style/mainButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/icons8_chat_messages_32px"
+            android:drawableLeft="@drawable/icons8_chat_messages_32px"
+            android:text="Gửi feedback" />
 
 
     </LinearLayout>
