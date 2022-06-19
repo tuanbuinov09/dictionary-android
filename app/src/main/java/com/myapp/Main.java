@@ -35,12 +35,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.myapp.adapter.EnWordRecyclerAdapter;
+import com.myapp.dialog.CustomDialog;
+import com.myapp.dialog.FeedbackDialog;
 import com.myapp.dictionary.DictionaryActivity;
 import com.myapp.dictionary.ProductDetailActivity;
 import com.myapp.dictionary.ProductListActivity;
 import com.myapp.dictionary.YourWordActivity;
 import com.myapp.dtbassethelper.DatabaseAccess;
 import com.myapp.model.EnWord;
+import com.myapp.model.ExampleDetail;
+import com.myapp.model.Meaning;
 import com.myapp.model.Settings;
 import com.myapp.utils.ChangeSearchView;
 import com.myapp.utils.FileIO;
@@ -49,18 +53,20 @@ import com.myapp.utils.FileIO3;
 import com.myapp.utils.SoftKeyboard;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Main extends AppCompatActivity {
+public class Main extends AppCompatActivity implements FeedbackDialog.Listener {
 
     private Button buttonLearnEnglish, btnToAllWord, btnToYourWord, buttonTranslateText, buttonSettings, buttonAccount,
-            buttonTranslateCamera, buttonTranslateImage, buttonHistory, buttonProductDetail;
+            buttonTranslateCamera, buttonTranslateImage, buttonHistory, buttonProductDetail, buttonFeedback;
     ImageButton btnMic;
-
+    ArrayList<EnWord> justFetched = new ArrayList<>();
     FloatingActionButton fab;
     LinearLayout floatingLinearLayout;
     androidx.appcompat.widget.SearchView searchInput = null;
@@ -135,10 +141,10 @@ public class Main extends AppCompatActivity {
 //        databaseAccess.open();
 //        GlobalVariables.userId = databaseAccess.getCurrentUserId__OFFLINE();
 //        databaseAccess.close();
-        try{
+        try {
             getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
-
-        }catch (Exception ex){
+            enWordRecyclerAdapter.notifyDataSetChanged();
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 //        getSavedWordOfUser();
@@ -153,7 +159,7 @@ public class Main extends AppCompatActivity {
 //        }
 
         //để khi lưu hay bỏ lưu ở word detail thì cái nàfy đc cậpj nhật
-        enWordRecyclerAdapter.notifyDataSetChanged();
+//        enWordRecyclerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -299,6 +305,12 @@ public class Main extends AppCompatActivity {
                 handleButtonProductDictionary(v);
             }
         });
+        buttonFeedback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialog();
+            }
+        });
     }
 
     private void fetchData() {
@@ -307,62 +319,166 @@ public class Main extends AppCompatActivity {
             @Override
             public void run() {
                 if (!searchInput.getQuery().toString().trim().equalsIgnoreCase("")) {
-                    DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-                    databaseAccess.open();
+
                     GlobalVariables.offset = GlobalVariables.offset + GlobalVariables.limit;
-
-                    ArrayList<EnWord> justFetched = databaseAccess.searchEnWord_NoPopulateWithOffsetLimit(searchInput.getQuery().toString().trim(), GlobalVariables.offset, GlobalVariables.limit);
-
-                    databaseAccess.close();
-
-                    GlobalVariables.listFilteredWords.addAll(justFetched);
-                    enWordRecyclerAdapter.filterList(GlobalVariables.listFilteredWords);
-
-                    progressBar.setVisibility(View.GONE);
+                    getNextChunkOfWord(searchInput.getQuery().toString().trim(), GlobalVariables.offset, GlobalVariables.limit);
                     return;
                 }
-                DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-                databaseAccess.open();
-                GlobalVariables.offset = GlobalVariables.offset + GlobalVariables.limit;
-
-                ArrayList<EnWord> justFetched = databaseAccess.getAllEnWord_NoPopulateWithOffsetLimit(GlobalVariables.offset, GlobalVariables.limit);
-
-                databaseAccess.close();
-
-                GlobalVariables.listAllWords.addAll(justFetched);
-                enWordRecyclerAdapter.notifyDataSetChanged();
-
-                progressBar.setVisibility(View.GONE);
-
+                floatingLinearLayout.setVisibility(View.GONE);
             }
-        }, 3000);
+        }, 1000);
     }
 
+    private void getNextChunkOfWord(String query, int offset, int limit) {
+
+        String url = "http://10.0.2.2:7000/enwords/simplified/search?query=" + query + "&offset=" + offset + "&limit=" + limit;
+        System.out.println("---------------------------------------------------" + url);
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                getDataJustFetchedWords(response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(Main.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
+            }
+        }){
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                Map<String, String>  params = new HashMap<String, String>();
+//                params.put("authorization", "Bearer "+GlobalVariables.access_token);
+////                    params.put("refresh_token", GlobalVariables.refresh_token);
+//                return params;
+//            }
+
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(Main.this);
+        requestQueue.add(request);
+    }
+
+    private void getDataJustFetchedWords(JSONArray array) {
+        try {
+            this.justFetched.clear();
+//            JSONArray array = response;
+            for (int i = 0; i < array.length(); i = i + 1) {
+                JSONObject object = array.getJSONObject(i);
+
+                EnWord enWord = new EnWord();
+                enWord.setWord(object.getString("word"));
+                enWord.setId(object.getLong("id"));
+                enWord.setViews(object.getInt("views"));
+                enWord.setPronunciation(object.getString("pronunciation"));
+
+                JSONArray meaningArray = object.getJSONArray("meanings");
+                ArrayList<Meaning> listMeaning = new ArrayList<>();
+
+                for (int j = 0; j < meaningArray.length(); j = j + 1) {
+                    JSONObject objectMeaning = meaningArray.getJSONObject(j);
+                    Meaning meaning = new Meaning();
+                    try{
+                        JSONObject objectPartOfSpeech = objectMeaning.getJSONObject("partOfSpeech");
+                        meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
+
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+
+                    meaning.setMeaning(objectMeaning.getString("meaning"));
+//                    meaning.setId(objectMeaning.getInt("id"));
+
+                    // bắst trường hợp k có example
+                    JSONArray exampleArray = new JSONArray();
+                    ArrayList<ExampleDetail> listExample = new ArrayList<>();
+                    try {
+                        exampleArray = objectMeaning.getJSONArray("examples");
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                    for (int k = 0; k < exampleArray.length(); k = k + 1) {
+                        JSONObject exampleObject = exampleArray.getJSONObject(k);
+                        ExampleDetail exampleDetail = new ExampleDetail();
+                        exampleDetail.setId(exampleObject.getInt("id"));
+                        exampleDetail.setMeaningId(exampleObject.getInt("meaningId"));
+                        exampleDetail.setExample(exampleObject.getString("example"));
+                        exampleDetail.setExampleMeaning(exampleObject.getString("exampleMeaning"));
+
+                        listExample.add(exampleDetail);
+                    }
+
+                    meaning.setListExampleDetails(listExample);
+
+                    listMeaning.add(meaning);
+                }
+
+                enWord.setListMeaning(listMeaning);
+                this.justFetched.add(enWord);
+
+            }
+            for (EnWord en : this.justFetched) {
+                System.out.println("----" + en.toString());
+            }
+
+            if (!searchInput.getQuery().toString().trim().equalsIgnoreCase("")) {// nếu là fetch cho search
+                GlobalVariables.listFilteredWords.addAll(justFetched);
+                if (GlobalVariables.listFilteredWords.isEmpty()) {
+                    Toast.makeText(this, "No Data Found..", Toast.LENGTH_SHORT).show();
+                    floatingLinearLayout.setVisibility(View.GONE);
+                    return;
+                } else {
+                    //offset 0: mới search lần đầu, thì setadapter, nếu không thì chỉ notify change
+                    if (GlobalVariables.offset == 0) {
+                        enWordRecyclerAdapter = new EnWordRecyclerAdapter(this, GlobalVariables.listFilteredWords);
+                        recyclerView.setAdapter(enWordRecyclerAdapter);
+                        manager = new LinearLayoutManager(this);
+                        recyclerView.setLayoutManager(manager);
+                        floatingLinearLayout.setVisibility(View.VISIBLE);
+                    } else {
+                        enWordRecyclerAdapter.filterList(GlobalVariables.listFilteredWords);
+//                        enWordRecyclerAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
+//            else {// nếu là fetch không search
+//                GlobalVariables.listAllWords.addAll(justFetched);
+//                if (GlobalVariables.listAllWords.isEmpty()) {
+//                    Toast.makeText(this, "No Data Found..", Toast.LENGTH_SHORT).show();
+//                    return;
+//                } else {
+//                    //offset 0: mới lần đầu, thì setadapter, nếu không thì chỉ notify change
+//                    if (GlobalVariables.offset == 0) {
+//                        enWordRecyclerAdapter = new EnWordRecyclerAdapter(this, GlobalVariables.listAllWords);
+//                        recyclerView.setAdapter(enWordRecyclerAdapter);
+//                        manager = new LinearLayoutManager(this);
+//                        recyclerView.setLayoutManager(manager);
+//                    } else {
+//                        enWordRecyclerAdapter.filterList(GlobalVariables.listAllWords);
+////                        enWordRecyclerAdapter.notifyDataSetChanged();
+//                    }
+//                }
+//            }
+            progressBar.setVisibility(View.GONE);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
     private void filter(String text) {
         // if query is empty: return all
         if (text.isEmpty()) {
             GlobalVariables.listFilteredWords.removeAll(GlobalVariables.listFilteredWords);
             enWordRecyclerAdapter.filterList(GlobalVariables.listFilteredWords);
             floatingLinearLayout.setVisibility(View.GONE);
+            //set laij offset
+            GlobalVariables.offset = 0;
             return;
         }
-        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
-        databaseAccess.open();
-        GlobalVariables.listFilteredWords.removeAll(GlobalVariables.listFilteredWords);
-        GlobalVariables.listFilteredWords = databaseAccess.searchEnWord_NoPopulateWithOffsetLimit(text, GlobalVariables.offset, GlobalVariables.limit);
-        databaseAccess.close();
 
-        if (GlobalVariables.listFilteredWords.isEmpty()) {
-            Toast.makeText(this, "No Data Found..", Toast.LENGTH_SHORT).show();
-            return;
-        } else {
-            enWordRecyclerAdapter = new EnWordRecyclerAdapter(this, GlobalVariables.listFilteredWords);
-            recyclerView.setAdapter(enWordRecyclerAdapter);
-            manager = new LinearLayoutManager(this);
-            recyclerView.setLayoutManager(manager);
-            floatingLinearLayout.setVisibility(View.VISIBLE);
-            enWordRecyclerAdapter.filterList(GlobalVariables.listFilteredWords);
-        }
+        GlobalVariables.listFilteredWords.clear();
+        GlobalVariables.offset = 0;
+
+        getNextChunkOfWord(text, GlobalVariables.offset, GlobalVariables.limit);
+
     }
 
     private void setControl() {
@@ -389,6 +505,7 @@ public class Main extends AppCompatActivity {
         btnMic = findViewById(R.id.btnMic);
         buttonHistory = findViewById(R.id.buttonHistory);
         buttonProductDetail = findViewById(R.id.buttonProductDetail);
+        buttonFeedback = findViewById(R.id.buttonFeedback);
         //default, k có từ nào trong adapter
 
 
@@ -408,12 +525,12 @@ public class Main extends AppCompatActivity {
 //        GlobalVariables.userId = databaseAccess.getCurrentUserId__OFFLINE();
 //        databaseAccess.close();
 //
-try{
-    getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
+        try {
+            getAllSavedWordIdOfUser(Integer.parseInt(GlobalVariables.userId));
 
-}catch (Exception ex){
-    ex.printStackTrace();
-}
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void getAllSavedWordIdOfUser(int userId) {
@@ -429,11 +546,11 @@ try{
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(Main.this, "Fail to get the data..", Toast.LENGTH_SHORT).show();
             }
-        }){
+        }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
-                params.put("authorization", "Bearer "+GlobalVariables.access_token);
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("authorization", "Bearer " + GlobalVariables.access_token);
 //                    params.put("refresh_token", GlobalVariables.refresh_token);
                 return params;
             }
@@ -486,9 +603,9 @@ try{
 //            startActivity(intent);
 //        }
 
-            //Chưa login
-            Intent intent = new Intent(this, SignIn.class);
-            startActivity(intent);
+        //Chưa login
+        Intent intent = new Intent(this, SignIn.class);
+        startActivity(intent);
 
     }
 
@@ -656,6 +773,20 @@ try{
             } else {
                 //Toast.makeText(this, "Please provide the required permission", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+    public void openDialog() {
+        String content = "";
+        FeedbackDialog feedbackDialog = new FeedbackDialog(FeedbackDialog.Type.CONFIRM, "Gửi feedback", content, "feedback");
+        feedbackDialog.show(getSupportFragmentManager(), "feedbackDialog");
+    }
+    @Override
+    public void sendDialogResult(FeedbackDialog.Result result, String request) {
+        if (request.equalsIgnoreCase("feedback") && result == FeedbackDialog.Result.OK) {
+
+            Toast.makeText(getApplicationContext(), "Gửi feedback thành công", Toast.LENGTH_LONG);
+        }else{
+            Toast.makeText(getApplicationContext(), "Gửi feedback thất bại", Toast.LENGTH_LONG);
         }
     }
 }

@@ -277,12 +277,16 @@ public class DictionaryActivity extends AppCompatActivity {
 
                 for (int j = 0; j < meaningArray.length(); j = j + 1) {
                     JSONObject objectMeaning = meaningArray.getJSONObject(j);
-                    JSONObject objectPartOfSpeech = objectMeaning.getJSONObject("partOfSpeech");
                     Meaning meaning = new Meaning();
+                    try{
+                        JSONObject objectPartOfSpeech = objectMeaning.getJSONObject("partOfSpeech");
+                        meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
+
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
 
                     meaning.setMeaning(objectMeaning.getString("meaning"));
-//                    meaning.setId(objectMeaning.getInt("id"));
-                    meaning.setPartOfSpeechName(objectPartOfSpeech.getString("name"));
 
                     // bắst trường hợp k có example
                     JSONArray exampleArray = new JSONArray();
